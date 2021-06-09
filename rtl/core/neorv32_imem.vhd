@@ -158,7 +158,7 @@ begin
       else
         ack_o <= acc_en and (rden_i or wren_i);
       end if;
-      if (acc_en = '1') then -- reduce switching activity when not accessed
+--    if (acc_en = '1') then -- reduce switching activity when not accessed
 --      if (IMEM_AS_ROM = true) then -- implement IMEM as true ROM (initialized of course)
           rdata(07 downto 00) <= imem_file_rom_ll(to_integer(unsigned(addr)));
           rdata(15 downto 08) <= imem_file_rom_lh(to_integer(unsigned(addr)));
@@ -205,7 +205,7 @@ begin
 --        rdata(23 downto 16) <= imem_file_init_ram_hl(to_integer(unsigned(addr)));
 --        rdata(31 downto 24) <= imem_file_init_ram_hh(to_integer(unsigned(addr)));
 --      end if;
-      end if;
+--    end if;
     end if;
   end process imem_file_access;
 
