@@ -78,7 +78,7 @@ entity neorv32_ProcessorTop_MinimalBoot is
 
     -- Internal Data memory --
     MEM_INT_DMEM_EN              : boolean := true;    -- implement processor-internal data memory
-    MEM_INT_DMEM_SIZE            : natural := 2*1024; -- size of processor-internal data memory in bytes
+    MEM_INT_DMEM_SIZE            : natural := 1*1024; -- size of processor-internal data memory in bytes
 
     -- Internal Cache memory --
     ICACHE_EN                    : boolean := false;  -- implement instruction cache
