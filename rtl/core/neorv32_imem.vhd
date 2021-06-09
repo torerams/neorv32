@@ -154,57 +154,100 @@ begin
 
   -- Memory Access --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  imem_file_access: process(clk_i)
+--  imem_file_access: process(clk_i)
+--  begin
+--    if rising_edge(clk_i) then
+----    if (acc_en = '1') then -- reduce switching activity when not accessed
+----      if (IMEM_AS_ROM = true) then -- implement IMEM as true ROM (initialized of course)
+----        rdata(07 downto 00) <= imem_file_rom_ll(to_integer(unsigned(addr)));
+----        rdata(15 downto 08) <= imem_file_rom_lh(to_integer(unsigned(addr)));
+----        rdata(23 downto 16) <= imem_file_rom_hl(to_integer(unsigned(addr)));
+----        rdata(31 downto 24) <= imem_file_rom_hh(to_integer(unsigned(addr)));
+----
+----      elsif (BOOTLOADER_EN = true) then -- implement IMEM as non-initialized RAM
+----        if (wren_i = '1') then
+----          if (ben_i(0) = '1') then
+----            imem_file_ram_ll(to_integer(unsigned(addr))) <= data_i(07 downto 00);
+----          end if;
+----          if (ben_i(1) = '1') then
+----            imem_file_ram_lh(to_integer(unsigned(addr))) <= data_i(15 downto 08);
+----          end if;
+----          if (ben_i(2) = '1') then
+----            imem_file_ram_hl(to_integer(unsigned(addr))) <= data_i(23 downto 16);
+----          end if;
+----          if (ben_i(3) = '1') then
+----            imem_file_ram_hh(to_integer(unsigned(addr))) <= data_i(31 downto 24);
+----          end if;
+----        end if;
+----        imem_file_ll_rd <= imem_file_ram_ll(to_integer(unsigned(addr)));
+----        imem_file_lh_rd <= imem_file_ram_lh(to_integer(unsigned(addr)));
+----        imem_file_hl_rd <= imem_file_ram_hl(to_integer(unsigned(addr)));
+----        imem_file_hh_rd <= imem_file_ram_hh(to_integer(unsigned(addr)));
+--
+----      else -- implement IMEM as PRE-INITIALIZED RAM
+--            if (wren_i = '1') and (ben_i(0) = '1') then
+--              imem_file_init_ram_ll(to_integer(unsigned(addr))) <= data_i(07 downto 00);
+--            end if;
+--            if (wren_i = '1') and (ben_i(1) = '1') then
+--              imem_file_init_ram_lh(to_integer(unsigned(addr))) <= data_i(15 downto 08);
+--            end if;
+--            if (wren_i = '1') and (ben_i(2) = '1') then
+--              imem_file_init_ram_hl(to_integer(unsigned(addr))) <= data_i(23 downto 16);
+--            end if;
+--            if (wren_i = '1') and (ben_i(3) = '1') then
+--              imem_file_init_ram_hh(to_integer(unsigned(addr))) <= data_i(31 downto 24);
+--            end if;
+--          imem_file_ll_rd <= imem_file_init_ram_ll(to_integer(unsigned(addr)));
+--          imem_file_lh_rd <= imem_file_init_ram_lh(to_integer(unsigned(addr)));
+--          imem_file_hl_rd <= imem_file_init_ram_hl(to_integer(unsigned(addr)));
+--          imem_file_hh_rd <= imem_file_init_ram_hh(to_integer(unsigned(addr)));
+----      end if;
+----    end if;
+--    end if;
+--  end process imem_file_access;
+
+
+
+  imem_file_access_0: process(clk_i)
   begin
     if rising_edge(clk_i) then
---    if (acc_en = '1') then -- reduce switching activity when not accessed
---      if (IMEM_AS_ROM = true) then -- implement IMEM as true ROM (initialized of course)
-      imem_file_ll_rd <= imem_file_rom_ll(to_integer(unsigned(addr)));
-      imem_file_lh_rd <= imem_file_rom_lh(to_integer(unsigned(addr)));
-      imem_file_hl_rd <= imem_file_rom_hl(to_integer(unsigned(addr)));
-      imem_file_hh_rd <= imem_file_rom_hh(to_integer(unsigned(addr)));
---
---      elsif (BOOTLOADER_EN = true) then -- implement IMEM as non-initialized RAM
---        if (wren_i = '1') then
---          if (ben_i(0) = '1') then
---            imem_file_ram_ll(to_integer(unsigned(addr))) <= data_i(07 downto 00);
---          end if;
---          if (ben_i(1) = '1') then
---            imem_file_ram_lh(to_integer(unsigned(addr))) <= data_i(15 downto 08);
---          end if;
---          if (ben_i(2) = '1') then
---            imem_file_ram_hl(to_integer(unsigned(addr))) <= data_i(23 downto 16);
---          end if;
---          if (ben_i(3) = '1') then
---            imem_file_ram_hh(to_integer(unsigned(addr))) <= data_i(31 downto 24);
---          end if;
---        end if;
---        imem_file_ll_rd <= imem_file_ram_ll(to_integer(unsigned(addr)));
---        imem_file_lh_rd <= imem_file_ram_lh(to_integer(unsigned(addr)));
---        imem_file_hl_rd <= imem_file_ram_hl(to_integer(unsigned(addr)));
---        imem_file_hh_rd <= imem_file_ram_hh(to_integer(unsigned(addr)));
-
---      else -- implement IMEM as PRE-INITIALIZED RAM
---          if (wren_i = '1') and (ben_i(0) = '1') then
---            imem_file_init_ram_ll(to_integer(unsigned(addr))) <= data_i(07 downto 00);
---          end if;
---          if (wren_i = '1') and (ben_i(1) = '1') then
---            imem_file_init_ram_lh(to_integer(unsigned(addr))) <= data_i(15 downto 08);
---          end if;
---          if (wren_i = '1') and (ben_i(2) = '1') then
---            imem_file_init_ram_hl(to_integer(unsigned(addr))) <= data_i(23 downto 16);
---          end if;
---          if (wren_i = '1') and (ben_i(3) = '1') then
---            imem_file_init_ram_hh(to_integer(unsigned(addr))) <= data_i(31 downto 24);
---          end if;
---        imem_file_ll_rd <= imem_file_init_ram_ll(to_integer(unsigned(addr)));
---        imem_file_lh_rd <= imem_file_init_ram_lh(to_integer(unsigned(addr)));
---        imem_file_hl_rd <= imem_file_init_ram_hl(to_integer(unsigned(addr)));
---        imem_file_hh_rd <= imem_file_init_ram_hh(to_integer(unsigned(addr)));
---      end if;
---    end if;
+      if (wren_i = '1') and (ben_i(0) = '1') then
+        imem_file_init_ram_ll(to_integer(unsigned(addr))) <= data_i(07 downto 00);
+      end if;
+      imem_file_ll_rd <= imem_file_init_ram_ll(to_integer(unsigned(addr)));
     end if;
-  end process imem_file_access;
+  end process imem_file_access_0;
+
+  imem_file_access_1: process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      if (wren_i = '1') and (ben_i(0) = '1') then
+        imem_file_init_ram_lh(to_integer(unsigned(addr))) <= data_i(07 downto 00);
+      end if;
+      imem_file_lh_rd <= imem_file_init_ram_lh(to_integer(unsigned(addr)));
+    end if;
+  end process imem_file_access_1;
+
+  imem_file_access_2: process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      if (wren_i = '1') and (ben_i(0) = '1') then
+        imem_file_init_ram_hl(to_integer(unsigned(addr))) <= data_i(07 downto 00);
+      end if;
+      imem_file_hl_rd <= imem_file_init_ram_hl(to_integer(unsigned(addr)));
+    end if;
+  end process imem_file_access_2;
+
+  imem_file_access_3: process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      if (wren_i = '1') and (ben_i(0) = '1') then
+        imem_file_init_ram_hh(to_integer(unsigned(addr))) <= data_i(07 downto 00);
+      end if;
+      imem_file_hh_rd <= imem_file_init_ram_hh(to_integer(unsigned(addr)));
+    end if;
+  end process imem_file_access_3;
+
 
   rdata <= imem_file_hh_rd & imem_file_hl_rd & imem_file_lh_rd & imem_file_ll_rd;
 
