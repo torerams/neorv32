@@ -112,6 +112,11 @@ architecture neorv32_imem_rtl of neorv32_imem is
   signal imem_file_ram_hl : imem_file8_t;
   signal imem_file_ram_hh : imem_file8_t;
 
+  signal imem_file_ll_rd : std_ulogic_vector(07 downto 0);
+  signal imem_file_lh_rd : std_ulogic_vector(07 downto 0);
+  signal imem_file_hl_rd : std_ulogic_vector(07 downto 0);
+  signal imem_file_hh_rd : std_ulogic_vector(07 downto 0);
+
 
   -- -------------------------------------------------------------------------------- --
   -- attributes - these are *NOT mandatory*; just for footprint / timing optimization --
@@ -200,14 +205,16 @@ begin
               imem_file_init_ram_hh(to_integer(unsigned(addr))) <= data_i(31 downto 24);
             end if;
           end if;
-          rdata(07 downto 00) <= imem_file_init_ram_ll(to_integer(unsigned(addr)));
-          rdata(15 downto 08) <= imem_file_init_ram_lh(to_integer(unsigned(addr)));
-          rdata(23 downto 16) <= imem_file_init_ram_hl(to_integer(unsigned(addr)));
-          rdata(31 downto 24) <= imem_file_init_ram_hh(to_integer(unsigned(addr)));
+          imem_file_ll_rd <= imem_file_init_ram_ll(to_integer(unsigned(addr)));
+          imem_file_lh_rd <= imem_file_init_ram_lh(to_integer(unsigned(addr)));
+          imem_file_hl_rd <= imem_file_init_ram_hl(to_integer(unsigned(addr)));
+          imem_file_hh_rd <= imem_file_init_ram_hh(to_integer(unsigned(addr)));
 --      end if;
 --    end if;
     end if;
   end process imem_file_access;
+
+  rdata <= imem_file_hh_rd & imem_file_hl_rd & imem_file_lh_rd & imem_file_ll_rd;
 
   -- output gate --
   data_o <= rdata when (rden = '1') else (others => '0');
