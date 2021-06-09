@@ -71,7 +71,7 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
   -- RAM --
   -- The memory is built from 4x byte-wide memories defined as unique signals, since many synthesis tools
   -- have problems with 32-bit memories with byte-enable signals or with multi-dimensional arrays.
-  type dmem_file_t is array (0 to DMEM_SIZE/4-1) of std_ulogic_vector(07 downto 0);
+  type dmem_file_t is array (DMEM_SIZE/4-1 downto 0) of std_ulogic_vector(07 downto 0);
   signal dmem_file_ll    : dmem_file_t;
   signal dmem_file_lh    : dmem_file_t;
   signal dmem_file_hl    : dmem_file_t;
