@@ -112,7 +112,7 @@ begin
   dmem_file_access: process(clk_i)
   begin
     if rising_edge(clk_i) then
-      if (acc_en = '1') then -- reduce switching activity when not accessed
+--    if (acc_en = '1') then -- reduce switching activity when not accessed
         if (wren_i = '1') and (ben_i(0) = '1') then
           dmem_file_ll(to_integer(unsigned(addr))) <= data_i(07 downto 00);
         end if;
@@ -129,7 +129,7 @@ begin
           dmem_file_hh(to_integer(unsigned(addr))) <= data_i(31 downto 24);
         end if;
         dmem_file_hh_rd <= dmem_file_hh(to_integer(unsigned(addr)));
-      end if;
+--    end if;
     end if;
   end process dmem_file_access;
 
