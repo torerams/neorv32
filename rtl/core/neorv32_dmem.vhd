@@ -85,19 +85,19 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
   -- attributes - these are *NOT mandatory*; just for footprint / timing optimization --
   -- -------------------------------------------------------------------------------- --
 
-  -- lattice radiant --
-  attribute syn_ramstyle : string;
-  attribute syn_ramstyle of dmem_file_ll : signal is "no_rw_check";
-  attribute syn_ramstyle of dmem_file_lh : signal is "no_rw_check";
-  attribute syn_ramstyle of dmem_file_hl : signal is "no_rw_check";
-  attribute syn_ramstyle of dmem_file_hh : signal is "no_rw_check";
-
-  -- intel quartus prime --
-  attribute ramstyle : string;
-  attribute ramstyle of dmem_file_ll : signal is "no_rw_check";
-  attribute ramstyle of dmem_file_lh : signal is "no_rw_check";
-  attribute ramstyle of dmem_file_hl : signal is "no_rw_check";
-  attribute ramstyle of dmem_file_hh : signal is "no_rw_check";
+---- lattice radiant --
+--attribute syn_ramstyle : string;
+--attribute syn_ramstyle of dmem_file_ll : signal is "no_rw_check";
+--attribute syn_ramstyle of dmem_file_lh : signal is "no_rw_check";
+--attribute syn_ramstyle of dmem_file_hl : signal is "no_rw_check";
+--attribute syn_ramstyle of dmem_file_hh : signal is "no_rw_check";
+--
+---- intel quartus prime --
+--attribute ramstyle : string;
+--attribute ramstyle of dmem_file_ll : signal is "no_rw_check";
+--attribute ramstyle of dmem_file_lh : signal is "no_rw_check";
+--attribute ramstyle of dmem_file_hl : signal is "no_rw_check";
+--attribute ramstyle of dmem_file_hh : signal is "no_rw_check";
 
 begin
 
@@ -109,7 +109,7 @@ begin
 
   -- Memory Access --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  dmem_file_access: process(clk_i)
+  dmem_file_access_b0: process(clk_i)
   begin
     if rising_edge(clk_i) then
 --    if (acc_en = '1') then -- reduce switching activity when not accessed
@@ -117,21 +117,45 @@ begin
           dmem_file_ll(to_integer(unsigned(addr))) <= data_i(07 downto 00);
         end if;
         dmem_file_ll_rd <= dmem_file_ll(to_integer(unsigned(addr)));
-        if (wren_i = '1') and (ben_i(1) = '1') then
-          dmem_file_lh(to_integer(unsigned(addr))) <= data_i(15 downto 08);
+--    end if;
+    end if;
+  end process dmem_file_access_b0;
+
+  dmem_file_access_b1: process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+--    if (acc_en = '1') then -- reduce switching activity when not accessed
+        if (wren_i = '1') and (ben_i(0) = '1') then
+          dmem_file_lh(to_integer(unsigned(addr))) <= data_i(07 downto 00);
         end if;
         dmem_file_lh_rd <= dmem_file_lh(to_integer(unsigned(addr)));
-        if (wren_i = '1') and (ben_i(2) = '1') then
-          dmem_file_hl(to_integer(unsigned(addr))) <= data_i(23 downto 16);
+--    end if;
+    end if;
+  end process dmem_file_access_b1;
+
+  dmem_file_access_b2: process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+--    if (acc_en = '1') then -- reduce switching activity when not accessed
+        if (wren_i = '1') and (ben_i(0) = '1') then
+          dmem_file_hl(to_integer(unsigned(addr))) <= data_i(07 downto 00);
         end if;
         dmem_file_hl_rd <= dmem_file_hl(to_integer(unsigned(addr)));
-        if (wren_i = '1') and (ben_i(3) = '1') then
-          dmem_file_hh(to_integer(unsigned(addr))) <= data_i(31 downto 24);
+--    end if;
+    end if;
+  end process dmem_file_access_b2;
+
+  dmem_file_access_b3: process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+--    if (acc_en = '1') then -- reduce switching activity when not accessed
+        if (wren_i = '1') and (ben_i(0) = '1') then
+          dmem_file_hh(to_integer(unsigned(addr))) <= data_i(07 downto 00);
         end if;
         dmem_file_hh_rd <= dmem_file_hh(to_integer(unsigned(addr)));
 --    end if;
     end if;
-  end process dmem_file_access;
+  end process dmem_file_access_b3;
 
   rdata <= dmem_file_hh_rd & dmem_file_hl_rd & dmem_file_lh_rd & dmem_file_ll_rd;
 
