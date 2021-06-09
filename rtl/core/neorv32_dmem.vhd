@@ -60,18 +60,18 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
 
   -- IO space: module base address --
   constant hi_abb_c : natural := 31; -- high address boundary bit
-  constant lo_abb_c : natural := index_size_f(DMEM_SIZE); -- low address boundary bit
+  constant lo_abb_c : natural := index_size_f(2048); -- low address boundary bit
 
   -- local signals --
   signal acc_en : std_ulogic;
   signal rdata  : std_ulogic_vector(31 downto 0);
   signal rden   : std_ulogic;
-  signal addr   : std_ulogic_vector(index_size_f(DMEM_SIZE/4)-1 downto 0);
+  signal addr   : std_ulogic_vector(index_size_f(2048/4)-1 downto 0);
 
   -- RAM --
   -- The memory is built from 4x byte-wide memories defined as unique signals, since many synthesis tools
   -- have problems with 32-bit memories with byte-enable signals or with multi-dimensional arrays.
-  type dmem_file_t is array (DMEM_SIZE/4-1 downto 0) of std_ulogic_vector(07 downto 0);
+  type dmem_file_t is array (2048/4-1 downto 0) of std_ulogic_vector(07 downto 0);
   signal dmem_file_ll    : dmem_file_t;
   signal dmem_file_lh    : dmem_file_t;
   signal dmem_file_hl    : dmem_file_t;
@@ -104,7 +104,7 @@ begin
   -- Access Control -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   acc_en <= '1' when (addr_i(hi_abb_c downto lo_abb_c) = DMEM_BASE(hi_abb_c downto lo_abb_c)) else '0';
-  addr   <= addr_i(index_size_f(DMEM_SIZE/4)+1 downto 2); -- word aligned
+  addr   <= addr_i(index_size_f(2048/4)+1 downto 2); -- word aligned
 
 
   -- Memory Access --------------------------------------------------------------------------
