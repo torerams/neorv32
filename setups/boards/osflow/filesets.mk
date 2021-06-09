@@ -3,8 +3,6 @@ RTL_CORE_SRC := ../../../../rtl/core
 NEORV32_PKG := $(RTL_CORE_SRC)/neorv32_package.vhd
 
 NEORV32_SRC := \
-  ../devices/ice40/neorv32_dmem.ice40up_spram.vhd \
-  ../devices/ice40/neorv32_imem.ice40up_spram.vhd \
   $(RTL_CORE_SRC)/neorv32_bootloader_image.vhd \
   $(RTL_CORE_SRC)/neorv32_application_image.vhd \
   $(RTL_CORE_SRC)/neorv32_boot_rom.vhd \
@@ -21,6 +19,8 @@ NEORV32_SRC := \
   $(RTL_CORE_SRC)/neorv32_cpu_regfile.vhd \
   $(RTL_CORE_SRC)/neorv32_debug_dm.vhd \
   $(RTL_CORE_SRC)/neorv32_debug_dtm.vhd \
+  $(RTL_CORE_SRC)/neorv32_dmem.vhd \
+  $(RTL_CORE_SRC)/neorv32_imem.vhd \
   $(RTL_CORE_SRC)/neorv32_gpio.vhd \
   $(RTL_CORE_SRC)/neorv32_icache.vhd \
   $(RTL_CORE_SRC)/neorv32_mtime.vhd \

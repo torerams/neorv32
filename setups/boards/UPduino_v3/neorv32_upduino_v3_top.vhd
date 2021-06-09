@@ -143,7 +143,7 @@ begin
   generic map (
     -- General --
     CLOCK_FREQUENCY              => f_clock_c,   -- clock frequency of clk_i in Hz
-    BOOTLOADER_EN                => true,        -- implement processor-internal bootloader?
+    BOOTLOADER_EN                => false,        -- implement processor-internal bootloader?
     USER_CODE                    => x"0001ce40", -- custom user code
     HW_THREAD_ID                 => 0,           -- hardware thread id (32-bit)
 
@@ -151,10 +151,10 @@ begin
     ON_CHIP_DEBUGGER_EN          => false,       -- implement on-chip debugger
 
     -- RISC-V CPU Extensions --
-    CPU_EXTENSION_RISCV_A        => true,        -- implement atomic extension?
-    CPU_EXTENSION_RISCV_C        => true,        -- implement compressed extension?
+    CPU_EXTENSION_RISCV_A        => false,        -- implement atomic extension?
+    CPU_EXTENSION_RISCV_C        => false,        -- implement compressed extension?
     CPU_EXTENSION_RISCV_E        => false,       -- implement embedded RF extension?
-    CPU_EXTENSION_RISCV_M        => true,        -- implement mul/div extension?
+    CPU_EXTENSION_RISCV_M        => false,        -- implement mul/div extension?
     CPU_EXTENSION_RISCV_U        => false,       -- implement user mode extension?
     CPU_EXTENSION_RISCV_Zfinx    => false,       -- implement 32-bit floating-point extension (using INT regs!)
     CPU_EXTENSION_RISCV_Zicsr    => true,        -- implement CSR system?
@@ -176,12 +176,12 @@ begin
 
     -- Internal Instruction memory --
     MEM_INT_IMEM_EN              => true,        -- implement processor-internal instruction memory
-    MEM_INT_IMEM_SIZE            => 64*1024,     -- size of processor-internal instruction memory in bytes
+    MEM_INT_IMEM_SIZE            => 8*1024,     -- size of processor-internal instruction memory in bytes
     MEM_INT_IMEM_ROM             => false,       -- implement processor-internal instruction memory as ROM
 
     -- Internal Data memory --
     MEM_INT_DMEM_EN              => true,        -- implement processor-internal data memory
-    MEM_INT_DMEM_SIZE            => 64*1024,     -- size of processor-internal data memory in bytes
+    MEM_INT_DMEM_SIZE            => 2*1024,     -- size of processor-internal data memory in bytes
 
     -- Internal Cache memory --
     ICACHE_EN                    => false,       -- implement instruction cache
@@ -198,11 +198,11 @@ begin
     IO_MTIME_EN                  => true,        -- implement machine system timer (MTIME)?
     IO_UART0_EN                  => true,        -- implement primary universal asynchronous receiver/transmitter (UART0)?
     IO_UART1_EN                  => false,       -- implement secondary universal asynchronous receiver/transmitter (UART1)?
-    IO_SPI_EN                    => true,        -- implement serial peripheral interface (SPI)?
-    IO_TWI_EN                    => true,        -- implement two-wire interface (TWI)?
+    IO_SPI_EN                    => false,        -- implement serial peripheral interface (SPI)?
+    IO_TWI_EN                    => false,        -- implement two-wire interface (TWI)?
     IO_PWM_NUM_CH                => 3,           -- number of PWM channels to implement (0..60); 0 = disabled
-    IO_WDT_EN                    => true,        -- implement watch dog timer (WDT)?
-    IO_TRNG_EN                   => true,        -- implement true random number generator (TRNG)?
+    IO_WDT_EN                    => false,        -- implement watch dog timer (WDT)?
+    IO_TRNG_EN                   => false,        -- implement true random number generator (TRNG)?
     IO_CFS_EN                    => false,       -- implement custom functions subsystem (CFS)?
     IO_CFS_CONFIG                => x"00000000", -- custom CFS configuration generic
     IO_CFS_IN_SIZE               => 32,          -- size of CFS input conduit in bits
