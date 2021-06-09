@@ -157,12 +157,6 @@ begin
   imem_file_access: process(clk_i)
   begin
     if rising_edge(clk_i) then
-      rden <= acc_en and rden_i;
-      if (IMEM_AS_ROM = true) then
-        ack_o <= acc_en and rden_i;
-      else
-        ack_o <= acc_en and (rden_i or wren_i);
-      end if;
 --    if (acc_en = '1') then -- reduce switching activity when not accessed
 --      if (IMEM_AS_ROM = true) then -- implement IMEM as true ROM (initialized of course)
 --        rdata(07 downto 00) <= imem_file_rom_ll(to_integer(unsigned(addr)));
@@ -191,20 +185,18 @@ begin
 --        rdata(31 downto 24) <= imem_file_ram_hh(to_integer(unsigned(addr)));
 
 --      else -- implement IMEM as PRE-INITIALIZED RAM
-          if (wren_i = '1') then
-            if (ben_i(0) = '1') then
+            if (wren_i = '1') and (ben_i(0) = '1') then
               imem_file_init_ram_ll(to_integer(unsigned(addr))) <= data_i(07 downto 00);
             end if;
-            if (ben_i(1) = '1') then
+            if (wren_i = '1') and (ben_i(1) = '1') then
               imem_file_init_ram_lh(to_integer(unsigned(addr))) <= data_i(15 downto 08);
             end if;
-            if (ben_i(2) = '1') then
+            if (wren_i = '1') and (ben_i(2) = '1') then
               imem_file_init_ram_hl(to_integer(unsigned(addr))) <= data_i(23 downto 16);
             end if;
-            if (ben_i(3) = '1') then
+            if (wren_i = '1') and (ben_i(3) = '1') then
               imem_file_init_ram_hh(to_integer(unsigned(addr))) <= data_i(31 downto 24);
             end if;
-          end if;
           imem_file_ll_rd <= imem_file_init_ram_ll(to_integer(unsigned(addr)));
           imem_file_lh_rd <= imem_file_init_ram_lh(to_integer(unsigned(addr)));
           imem_file_hl_rd <= imem_file_init_ram_hl(to_integer(unsigned(addr)));
@@ -215,6 +207,21 @@ begin
   end process imem_file_access;
 
   rdata <= imem_file_hh_rd & imem_file_hl_rd & imem_file_lh_rd & imem_file_ll_rd;
+
+
+  -- Bus Feedback ---------------------------------------------------------------------------
+  -- -------------------------------------------------------------------------------------------
+  bus_feedback: process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      rden <= acc_en and rden_i;
+      if (IMEM_AS_ROM = true) then
+        ack_o <= acc_en and rden_i;
+      else
+        ack_o <= acc_en and (rden_i or wren_i);
+      end if;
+    end if;
+  end process bus_feedback;
 
   -- output gate --
   data_o <= rdata when (rden = '1') else (others => '0');
