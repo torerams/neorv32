@@ -112,7 +112,7 @@ begin
   mem_access: process(clk_i)
   begin
     if rising_edge(clk_i) then
-      if (acc_en = '1') then -- reduce switching activity when not accessed
+--    if (acc_en = '1') then -- reduce switching activity when not accessed
         -- write --
         if (wren_i = '1') then
           if (ben_i(0) = '1') then -- byte 0
@@ -133,7 +133,7 @@ begin
         mem_b1_rd <= mem_b1(to_integer(unsigned(addr)));
         mem_b2_rd <= mem_b2(to_integer(unsigned(addr)));
         mem_b3_rd <= mem_b3(to_integer(unsigned(addr)));
-      end if;
+--    end if;
     end if;
   end process mem_access;
 
