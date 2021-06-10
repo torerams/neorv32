@@ -126,12 +126,12 @@ begin
         mem_b3(to_integer(unsigned(addr))) <= data_i(31 downto 24);
       end if;
       -- read --
---    if (acc_en = '1') then -- reduce switching activity when not accessed
+      if (acc_en = '1') then -- reduce switching activity when not accessed
         mem_b0_rd <= mem_b0(to_integer(unsigned(addr)));
         mem_b1_rd <= mem_b1(to_integer(unsigned(addr)));
         mem_b2_rd <= mem_b2(to_integer(unsigned(addr)));
         mem_b3_rd <= mem_b3(to_integer(unsigned(addr)));
---    end if;
+    end if;
     end if;
   end process mem_access;
 
