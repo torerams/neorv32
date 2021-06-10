@@ -91,13 +91,13 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
 -- attribute syn_ramstyle of mem_b1 : signal is "no_rw_check";
 -- attribute syn_ramstyle of mem_b2 : signal is "no_rw_check";
 -- attribute syn_ramstyle of mem_b3 : signal is "no_rw_check";
---
--- -- intel quartus prime --
--- attribute ramstyle : string;
--- attribute ramstyle of mem_b0 : signal is "no_rw_check";
--- attribute ramstyle of mem_b1 : signal is "no_rw_check";
--- attribute ramstyle of mem_b2 : signal is "no_rw_check";
--- attribute ramstyle of mem_b3 : signal is "no_rw_check";
+  
+  -- intel quartus prime --
+  attribute ramstyle : string;
+  attribute ramstyle of mem_b0 : signal is "no_rw_check";
+  attribute ramstyle of mem_b1 : signal is "no_rw_check";
+  attribute ramstyle of mem_b2 : signal is "no_rw_check";
+  attribute ramstyle of mem_b3 : signal is "no_rw_check";
 
 begin
 
