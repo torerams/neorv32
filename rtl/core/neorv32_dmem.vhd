@@ -85,12 +85,12 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
   -- attributes - these are *NOT mandatory*; just for footprint / timing optimization --
   -- -------------------------------------------------------------------------------- --
 
-  -- lattice radiant --
-  attribute syn_ramstyle : string;
-  attribute syn_ramstyle of mem_b0 : signal is "no_rw_check";
-  attribute syn_ramstyle of mem_b1 : signal is "no_rw_check";
-  attribute syn_ramstyle of mem_b2 : signal is "no_rw_check";
-  attribute syn_ramstyle of mem_b3 : signal is "no_rw_check";
+---- lattice radiant --
+--attribute syn_ramstyle : string;
+--attribute syn_ramstyle of mem_b0 : signal is "no_rw_check";
+--attribute syn_ramstyle of mem_b1 : signal is "no_rw_check";
+--attribute syn_ramstyle of mem_b2 : signal is "no_rw_check";
+--attribute syn_ramstyle of mem_b3 : signal is "no_rw_check";
   
   -- intel quartus prime --
   attribute ramstyle : string;
