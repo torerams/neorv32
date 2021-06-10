@@ -71,16 +71,16 @@ architecture neorv32_imem_rtl of neorv32_imem is
   constant lo_abb_c : natural := index_size_f(IMEM_SIZE); -- low address boundary bit
 
   -- ROM types --
-  type imem_file16_t is array (0 to IMEM_SIZE/2-1) of std_ulogic_vector(15 downto 0);
+  type imem_file8_t is array (0 to IMEM_SIZE/4-1) of std_ulogic_vector(7 downto 0);
 
   -- init function and split 1x32-bit memory into 4x8-bit memories --
   -- impure function: returns NOT the same result every time it is evaluated with the same arguments since the source file might have changed
-  impure function init_imem(half : natural; init : application_init_image_t) return imem_file16_t is
-    variable mem_v : imem_file16_t;
+  impure function init_imem(byte : natural; init : application_init_image_t) return imem_file8_t is
+    variable mem_v : imem_file8_t;
   begin
     mem_v := (others => (others => '0'));
     for i in 0 to init'length-1 loop -- init only in range of source data array
-      mem_v(i) := init(i)(half*16+15 downto half*16+0);
+      mem_v(i) := init(i)(byte*8+7 downto byte*8+0);
     end loop; -- i
     return mem_v;
   end function init_imem;
@@ -89,23 +89,27 @@ architecture neorv32_imem_rtl of neorv32_imem is
   signal acc_en : std_ulogic;
   signal rdata  : std_ulogic_vector(31 downto 0);
   signal rden   : std_ulogic;
-  signal addr   : std_ulogic_vector(index_size_f(IMEM_SIZE/2)-1 downto 0);
+  signal addr   : std_ulogic_vector(index_size_f(IMEM_SIZE/4)-1 downto 0);
 
-  -- The memory is built from 4x byte-wide memories defined as unique signals, since many synthesis tools
-  -- have problems with 32-bit memories with byte-enable signals or with multi-dimensional arrays.
+  -- ------------------------------------------------------------------------------------------------------- --
+  -- The memory is built from 4 individual byte-wide memories, since some synthesis tools have problems with --
+  -- 32-bit memories that provide dedicated byte-enable signals AND/OR with multi-dimensional arrays.        --
+  -- ------------------------------------------------------------------------------------------------------- --
 
-  -- internal "RAM" type - implemented if bootloader is used and IMEM is RAM and initialized with app code --
-  signal imem_file_init_ram_lo : imem_file16_t := init_imem(0, application_init_image);
-  signal imem_file_init_ram_hi : imem_file16_t := init_imem(1, application_init_image);
+  -- internal "ROM" type - initialized with app code --
+  constant mem_rom_b0 : imem_file8_t := init_imem(0, application_init_image);
+  constant mem_rom_b1 : imem_file8_t := init_imem(1, application_init_image);
+  constant mem_rom_b2 : imem_file8_t := init_imem(2, application_init_image);
+  constant mem_rom_b3 : imem_file8_t := init_imem(3, application_init_image);
 
-  -- internal "ROM" type - implemented if bootloader is NOT used; always initialize with app code --
-  constant imem_file_rom_lo : imem_file16_t := init_imem(0, application_init_image);
-  constant imem_file_rom_hi : imem_file16_t := init_imem(1, application_init_image);
+  -- internal "RAM" type - not initialized at all --
+  signal mem_ram_b0 : imem_file8_t;
+  signal mem_ram_b1 : imem_file8_t;
+  signal mem_ram_b2 : imem_file8_t;
+  signal mem_ram_b3 : imem_file8_t;
 
-  -- internal "RAM" type - implemented if bootloader is used and IMEM is RAM --
-  signal imem_file_ram_lo : imem_file16_t;
-  signal imem_file_ram_hi : imem_file16_t;
-
+  -- read data --
+  signal mem_b0_rd, mem_b1_rd, mem_b2_rd, mem_b3_rd : std_ulogic_vector(7 downto 0);
 
   -- -------------------------------------------------------------------------------- --
   -- attributes - these are *NOT mandatory*; just for footprint / timing optimization --
@@ -113,29 +117,81 @@ architecture neorv32_imem_rtl of neorv32_imem is
 
   -- lattice radiant --
   attribute syn_ramstyle : string;
-  attribute syn_ramstyle of imem_file_ram_lo : signal is "no_rw_check";
-  attribute syn_ramstyle of imem_file_ram_hi : signal is "no_rw_check";
-  attribute syn_ramstyle of imem_file_init_ram_lo : signal is "no_rw_check";
-  attribute syn_ramstyle of imem_file_init_ram_hi : signal is "no_rw_check";
+  attribute syn_ramstyle of mem_ram_b0 : signal is "no_rw_check";
+  attribute syn_ramstyle of mem_ram_b1 : signal is "no_rw_check";
+  attribute syn_ramstyle of mem_ram_b2 : signal is "no_rw_check";
+  attribute syn_ramstyle of mem_ram_b3 : signal is "no_rw_check";
 
   -- intel quartus prime --
   attribute ramstyle : string;
-  attribute ramstyle of imem_file_ram_lo : signal is "no_rw_check";
-  attribute ramstyle of imem_file_ram_hi : signal is "no_rw_check";
-  attribute ramstyle of imem_file_init_ram_lo : signal is "no_rw_check";
-  attribute ramstyle of imem_file_init_ram_hi : signal is "no_rw_check";
+  attribute ramstyle of mem_ram_b0 : signal is "no_rw_check";
+  attribute ramstyle of mem_ram_b1 : signal is "no_rw_check";
+  attribute ramstyle of mem_ram_b2 : signal is "no_rw_check";
+  attribute ramstyle of mem_ram_b3 : signal is "no_rw_check";
 
 begin
 
   -- Access Control -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   acc_en <= '1' when (addr_i(hi_abb_c downto lo_abb_c) = IMEM_BASE(hi_abb_c downto lo_abb_c)) else '0';
-  addr   <= addr_i(index_size_f(IMEM_SIZE/2)+1 downto 2); -- word aligned
+  addr   <= addr_i(index_size_f(IMEM_SIZE/4)+1 downto 2); -- word aligned
 
 
-  -- Memory Access --------------------------------------------------------------------------
+  -- Implement IMEM as pre-initialized ROM --------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  imem_file_access: process(clk_i)
+  imem_rom:
+  if (BOOTLOADER_EN = false) generate
+    mem_access: process(clk_i)
+    begin
+      if rising_edge(clk_i) then
+        if (acc_en = '1') then -- reduce switching activity when not accessed
+          mem_b0_rd <= mem_rom_b0(to_integer(unsigned(addr)));
+          mem_b1_rd <= mem_rom_b1(to_integer(unsigned(addr)));
+          mem_b2_rd <= mem_rom_b2(to_integer(unsigned(addr)));
+          mem_b3_rd <= mem_rom_b3(to_integer(unsigned(addr)));
+        end if;
+      end if;
+    end process mem_access;
+  end generate;
+
+
+  -- Implement IMEM as not-initialized RAM --------------------------------------------------
+  -- -------------------------------------------------------------------------------------------
+  imem_ram:
+  if (BOOTLOADER_EN = true) generate
+    mem_access: process(clk_i)
+    begin
+      if rising_edge(clk_i) then
+        if (acc_en = '1') then -- reduce switching activity when not accessed
+          -- write --
+          if (wren_i = '1') then
+            if (ben_i(0) = '1') then -- byte 0
+              mem_ram_b0(to_integer(unsigned(addr))) <= data_i(07 downto 00);
+            end if;
+            if (ben_i(1) = '1') then -- byte 1
+              mem_ram_b1(to_integer(unsigned(addr))) <= data_i(15 downto 08);
+            end if;
+            if (ben_i(2) = '1') then -- byte 2
+              mem_ram_b2(to_integer(unsigned(addr))) <= data_i(23 downto 16);
+            end if;
+            if (ben_i(3) = '1') then -- byte 3
+              mem_ram_b3(to_integer(unsigned(addr))) <= data_i(31 downto 24);
+            end if;
+          end if;
+          -- read --
+          mem_b0_rd <= mem_ram_b0(to_integer(unsigned(addr)));
+          mem_b1_rd <= mem_ram_b1(to_integer(unsigned(addr)));
+          mem_b2_rd <= mem_ram_b2(to_integer(unsigned(addr)));
+          mem_b3_rd <= mem_ram_b3(to_integer(unsigned(addr)));
+        end if;
+      end if;
+    end process mem_access;
+  end generate;
+
+
+  -- Bus Feedback ---------------------------------------------------------------------------
+  -- -------------------------------------------------------------------------------------------
+  bus_feedback: process(clk_i)
   begin
     if rising_edge(clk_i) then
       rden <= acc_en and rden_i;
@@ -144,50 +200,11 @@ begin
       else
         ack_o <= acc_en and (rden_i or wren_i);
       end if;
---    if (acc_en = '1') then -- reduce switching activity when not accessed
-        if (IMEM_AS_ROM = true) then -- implement IMEM as true ROM (initialized of course)
-          rdata(15 downto 00) <= imem_file_rom_lo(to_integer(unsigned(addr)));
-          rdata(31 downto 16) <= imem_file_rom_hi(to_integer(unsigned(addr)));
-
-        elsif (BOOTLOADER_EN = true) then -- implement IMEM as non-initialized RAM
-          if (wren_i = '1') then
-            if (ben_i(0) = '1') then
-              imem_file_ram_lo(to_integer(unsigned(addr)))(07 downto 00) <= data_i(07 downto 00);
-            end if;
-            if (ben_i(1) = '1') then
-              imem_file_ram_lo(to_integer(unsigned(addr)))(15 downto 08) <= data_i(15 downto 08);
-            end if;
-            if (ben_i(2) = '1') then
-              imem_file_ram_hi(to_integer(unsigned(addr)))(07 downto 00) <= data_i(23 downto 16);
-            end if;
-            if (ben_i(3) = '1') then
-              imem_file_ram_hi(to_integer(unsigned(addr)))(15 downto 08) <= data_i(31 downto 24);
-            end if;
-          end if;
-          rdata(15 downto 00) <= imem_file_ram_lo(to_integer(unsigned(addr)));
-          rdata(31 downto 16) <= imem_file_ram_hi(to_integer(unsigned(addr)));
-
-        else -- implement IMEM as PRE-INITIALIZED RAM
-          if (wren_i = '1') then
-            if (ben_i(0) = '1') then
-              imem_file_init_ram_lo(to_integer(unsigned(addr)))(07 downto 00) <= data_i(07 downto 00);
-            end if;
-            if (ben_i(1) = '1') then
-              imem_file_init_ram_lo(to_integer(unsigned(addr)))(15 downto 08) <= data_i(15 downto 08);
-            end if;
-            if (ben_i(2) = '1') then
-              imem_file_init_ram_hi(to_integer(unsigned(addr)))(07 downto 00) <= data_i(23 downto 16);
-            end if;
-            if (ben_i(3) = '1') then
-              imem_file_init_ram_hi(to_integer(unsigned(addr)))(15 downto 08) <= data_i(31 downto 24);
-            end if;
-          end if;
-          rdata(15 downto 00) <= imem_file_init_ram_lo(to_integer(unsigned(addr)));
-          rdata(31 downto 16) <= imem_file_init_ram_hi(to_integer(unsigned(addr)));
-        end if;
---    end if;
     end if;
-  end process imem_file_access;
+  end process bus_feedback;
+
+  -- pack --
+  rdata <= mem_b3_rd & mem_b2_rd & mem_b1_rd & mem_b0_rd;
 
   -- output gate --
   data_o <= rdata when (rden = '1') else (others => '0');
