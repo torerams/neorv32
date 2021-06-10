@@ -162,23 +162,23 @@ begin
     mem_access: process(clk_i)
     begin
       if rising_edge(clk_i) then
-        if (acc_en = '1') then -- reduce switching activity when not accessed
-          -- write --
-          if (wren_i = '1') then
-            if (ben_i(0) = '1') then -- byte 0
-              mem_ram_b0(to_integer(unsigned(addr))) <= data_i(07 downto 00);
-            end if;
-            if (ben_i(1) = '1') then -- byte 1
-              mem_ram_b1(to_integer(unsigned(addr))) <= data_i(15 downto 08);
-            end if;
-            if (ben_i(2) = '1') then -- byte 2
-              mem_ram_b2(to_integer(unsigned(addr))) <= data_i(23 downto 16);
-            end if;
-            if (ben_i(3) = '1') then -- byte 3
-              mem_ram_b3(to_integer(unsigned(addr))) <= data_i(31 downto 24);
-            end if;
+        -- write --
+        if (wren_i = '1') then
+          if (ben_i(0) = '1') then -- byte 0
+            mem_ram_b0(to_integer(unsigned(addr))) <= data_i(07 downto 00);
           end if;
-          -- read --
+          if (ben_i(1) = '1') then -- byte 1
+            mem_ram_b1(to_integer(unsigned(addr))) <= data_i(15 downto 08);
+          end if;
+          if (ben_i(2) = '1') then -- byte 2
+            mem_ram_b2(to_integer(unsigned(addr))) <= data_i(23 downto 16);
+          end if;
+          if (ben_i(3) = '1') then -- byte 3
+            mem_ram_b3(to_integer(unsigned(addr))) <= data_i(31 downto 24);
+          end if;
+        end if;
+        -- read --
+        if (acc_en = '1') then -- reduce switching activity when not accessed
           mem_b0_rd <= mem_ram_b0(to_integer(unsigned(addr)));
           mem_b1_rd <= mem_ram_b1(to_integer(unsigned(addr)));
           mem_b2_rd <= mem_ram_b2(to_integer(unsigned(addr)));
