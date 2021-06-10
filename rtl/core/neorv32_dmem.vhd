@@ -85,19 +85,19 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
   -- attributes - these are *NOT mandatory*; just for footprint / timing optimization --
   -- -------------------------------------------------------------------------------- --
 
-  -- lattice radiant --
-  attribute syn_ramstyle : string;
-  attribute syn_ramstyle of mem_b0 : signal is "no_rw_check";
-  attribute syn_ramstyle of mem_b1 : signal is "no_rw_check";
-  attribute syn_ramstyle of mem_b2 : signal is "no_rw_check";
-  attribute syn_ramstyle of mem_b3 : signal is "no_rw_check";
-
-  -- intel quartus prime --
-  attribute ramstyle : string;
-  attribute ramstyle of mem_b0 : signal is "no_rw_check";
-  attribute ramstyle of mem_b1 : signal is "no_rw_check";
-  attribute ramstyle of mem_b2 : signal is "no_rw_check";
-  attribute ramstyle of mem_b3 : signal is "no_rw_check";
+-- -- lattice radiant --
+-- attribute syn_ramstyle : string;
+-- attribute syn_ramstyle of mem_b0 : signal is "no_rw_check";
+-- attribute syn_ramstyle of mem_b1 : signal is "no_rw_check";
+-- attribute syn_ramstyle of mem_b2 : signal is "no_rw_check";
+-- attribute syn_ramstyle of mem_b3 : signal is "no_rw_check";
+--
+-- -- intel quartus prime --
+-- attribute ramstyle : string;
+-- attribute ramstyle of mem_b0 : signal is "no_rw_check";
+-- attribute ramstyle of mem_b1 : signal is "no_rw_check";
+-- attribute ramstyle of mem_b2 : signal is "no_rw_check";
+-- attribute ramstyle of mem_b3 : signal is "no_rw_check";
 
 begin
 
@@ -113,19 +113,17 @@ begin
   begin
     if rising_edge(clk_i) then
       -- write --
-      if (wren_i = '1') then
-        if (ben_i(0) = '1') then -- byte 0
-          mem_b0(to_integer(unsigned(addr))) <= data_i(07 downto 00);
-        end if;
-        if (ben_i(1) = '1') then -- byte 1
-          mem_b1(to_integer(unsigned(addr))) <= data_i(15 downto 08);
-        end if;
-        if (ben_i(2) = '1') then -- byte 2
-          mem_b2(to_integer(unsigned(addr))) <= data_i(23 downto 16);
-        end if;
-        if (ben_i(3) = '1') then -- byte 3
-          mem_b3(to_integer(unsigned(addr))) <= data_i(31 downto 24);
-        end if;
+      if (wren_i = '1') and (ben_i(0) = '1') then -- byte 0
+        mem_b0(to_integer(unsigned(addr))) <= data_i(07 downto 00);
+      end if;
+      if (wren_i = '1') and (ben_i(1) = '1') then -- byte 1
+        mem_b1(to_integer(unsigned(addr))) <= data_i(15 downto 08);
+      end if;
+      if (wren_i = '1') and (ben_i(2) = '1') then -- byte 2
+        mem_b2(to_integer(unsigned(addr))) <= data_i(23 downto 16);
+      end if;
+      if (wren_i = '1') and (ben_i(3) = '1') then -- byte 3
+        mem_b3(to_integer(unsigned(addr))) <= data_i(31 downto 24);
       end if;
       -- read --
 --    if (acc_en = '1') then -- reduce switching activity when not accessed
