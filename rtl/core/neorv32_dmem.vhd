@@ -68,10 +68,10 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
   signal rden   : std_ulogic;
   signal addr   : std_ulogic_vector(index_size_f(DMEM_SIZE/4)-1 downto 0);
 
-  -- ------------------------------------------------------------------------------------------------------- --
-  -- The memory is built from 4 individual byte-wide memories, since some synthesis tools have problems with --
-  -- 32-bit memories that provide dedicated byte-enable signals AND/OR with multi-dimensional arrays.        --
-  -- ------------------------------------------------------------------------------------------------------- --
+  -- --------------------------------------------------------------------------------------------------------- --
+  -- The memory is built from 4 individual byte-wide memories b0..b3, since some synthesis tools have problems --
+  -- with 32-bit memories that provide dedicated byte-enable signals AND/OR with multi-dimensional arrays.     --
+  -- --------------------------------------------------------------------------------------------------------- --
   type mem_t is array (0 to DMEM_SIZE/4-1) of std_ulogic_vector(7 downto 0);
   signal mem_b0 : mem_t;
   signal mem_b1 : mem_t;
@@ -80,24 +80,6 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
 
   -- read data --
   signal mem_b0_rd, mem_b1_rd, mem_b2_rd, mem_b3_rd : std_ulogic_vector(7 downto 0);
-
-  -- -------------------------------------------------------------------------------- --
-  -- attributes - these are *NOT mandatory*; just for footprint / timing optimization --
-  -- -------------------------------------------------------------------------------- --
-
----- lattice radiant --
---attribute syn_ramstyle : string;
---attribute syn_ramstyle of mem_b0 : signal is "no_rw_check";
---attribute syn_ramstyle of mem_b1 : signal is "no_rw_check";
---attribute syn_ramstyle of mem_b2 : signal is "no_rw_check";
---attribute syn_ramstyle of mem_b3 : signal is "no_rw_check";
-  
-  -- intel quartus prime --
-  attribute ramstyle : string;
-  attribute ramstyle of mem_b0 : signal is "no_rw_check";
-  attribute ramstyle of mem_b1 : signal is "no_rw_check";
-  attribute ramstyle of mem_b2 : signal is "no_rw_check";
-  attribute ramstyle of mem_b3 : signal is "no_rw_check";
 
 begin
 
@@ -112,8 +94,9 @@ begin
   mem_access: process(clk_i)
   begin
     if rising_edge(clk_i) then
+      -- this RAM style should not require "no_rw_check" attributes as the read-after-write behavior
+      -- is intended to be defined implicitly via the if-WRITE-else-READ construct
       if (acc_en = '1') then -- reduce switching activity when not accessed
-        -- write --
         if (wren_i = '1') and (ben_i(0) = '1') then -- byte 0
           mem_b0(to_integer(unsigned(addr))) <= data_i(07 downto 00);
         else
@@ -134,7 +117,6 @@ begin
         else
           mem_b3_rd <= mem_b3(to_integer(unsigned(addr)));
         end if;
-        -- read --
       end if;
     end if;
   end process mem_access;
