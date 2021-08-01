@@ -69,7 +69,7 @@ begin
   neorv32_top_inst: neorv32_top
   generic map (
     -- General --
-    CLOCK_FREQUENCY              => 50000000,   -- clock frequency of clk_i in Hz
+    CLOCK_FREQUENCY              => 100000000,   -- clock frequency of clk_i in Hz
     BOOTLOADER_EN                => false,        -- implement processor-internal bootloader?
     USER_CODE                    => x"00000000", -- custom user code
     HW_THREAD_ID                 => 0,           -- hardware thread id (hartid)
