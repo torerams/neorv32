@@ -65,13 +65,13 @@
  **************************************************************************/
 /**@{*/
 /** UART BAUD rate */
-#define BAUD_RATE              (19200)
+#define BAUD_RATE              (115200)
 /** Enable auto-boot sequence if != 0 */
 #define AUTOBOOT_EN            (1)
 /** Time until the auto-boot sequence starts (in seconds) */
 #define AUTOBOOT_TIMEOUT       (8)
 /** Set to 0 to disable bootloader status LED */
-#define STATUS_LED_EN          (1)
+#define STATUS_LED_EN          (0)
 /** Set to 1 to enable SPI direct boot (disables the entire user console!) */
 #define SPI_DIRECT_BOOT_EN     (0)
 /** Bootloader status LED at GPIO output port */

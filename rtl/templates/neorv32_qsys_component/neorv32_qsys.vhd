@@ -53,14 +53,65 @@ entity neorv32_qsys is
     gpio_o      : out std_ulogic_vector(7 downto 0); -- parallel output
     -- UART0 --
     uart0_txd_o : out std_ulogic; -- UART0 send data
-    uart0_rxd_i : in  std_ulogic := '0' -- UART0 receive data
+    uart0_rxd_i : in  std_ulogic := '0'; -- UART0 receive data
+
+    -- AvalonMM interface
+    read                    : out std_logic;
+    write                   : out std_logic;
+    waitrequest             : in std_logic;
+    address                 : out std_logic_vector(31 downto 0);
+    writedata               : out std_logic_vector(31 downto 0);
+    readdata                : in std_logic_vector(31 downto 0)
+
   );
 end entity;
 
 architecture neorv32_qsys_rtl of neorv32_qsys is
 
-  -- gpio output --
-  signal gpio_out : std_ulogic_vector(31 downto 0);
+  component wishbone2avalonmm is port (
+    clk                     : in std_logic;
+    reset                   : in std_logic;
+
+    -- Wishbone bus interface (available if MEM_EXT_EN = true) --
+    wb_tag_i                : in std_ulogic_vector(02 downto 0); -- request tag
+    wb_adr_i                : in std_ulogic_vector(31 downto 0); -- address
+    wb_dat_o                : out std_ulogic_vector(31 downto 0); -- read data
+    wb_dat_i                : in std_ulogic_vector(31 downto 0); -- write data
+    wb_we_i                 : in std_ulogic; -- read/write
+    wb_sel_i                : in std_ulogic_vector(03 downto 0); -- byte enable
+    wb_stb_i                : in std_ulogic; -- strobe
+    wb_cyc_i                : in std_ulogic; -- valid cycle
+    wb_lock_i               : in std_ulogic; -- exclusive access request
+    wb_ack_o                : out  std_ulogic; -- transfer acknowledge
+    wb_err_o                : out  std_ulogic; -- transfer error
+
+    -- AvalonMM interface
+    read                    : out std_logic;
+    write                   : out std_logic;
+    waitrequest             : in std_logic;
+    address                 : out std_logic_vector(31 downto 0);
+    writedata               : out std_logic_vector(31 downto 0);
+    readdata                : in std_logic_vector(31 downto 0));
+
+end component wishbone2avalonmm;  
+
+-- gpio output --
+signal  gpio_out : std_ulogic_vector(31 downto 0);
+
+-- Wishbone bus interface (available if MEM_EXT_EN = true) --
+signal  wb_tag_o    : std_ulogic_vector(02 downto 0); -- request tag
+signal  wb_adr_o    : std_ulogic_vector(31 downto 0); -- address
+signal  wb_dat_i    : std_ulogic_vector(31 downto 0); -- read data
+signal  wb_dat_o    : std_ulogic_vector(31 downto 0); -- write data
+signal  wb_we_o     : std_ulogic; -- read/write
+signal  wb_sel_o    : std_ulogic_vector(03 downto 0); -- byte enable
+signal  wb_stb_o    : std_ulogic; -- strobe
+signal  wb_cyc_o    : std_ulogic; -- valid cycle
+signal  wb_lock_o   : std_ulogic; -- exclusive access request
+signal  wb_ack_i    : std_ulogic; -- transfer acknowledge
+signal  wb_err_i    : std_ulogic; -- transfer error
+
+signal  reset       : std_logic;
 
 begin
 
@@ -70,7 +121,7 @@ begin
   generic map (
     -- General --
     CLOCK_FREQUENCY              => 100000000,   -- clock frequency of clk_i in Hz
-    BOOTLOADER_EN                => false,        -- implement processor-internal bootloader?
+    BOOTLOADER_EN                => true,        -- implement processor-internal bootloader?
     USER_CODE                    => x"00000000", -- custom user code
     HW_THREAD_ID                 => 0,           -- hardware thread id (hartid)
     -- On-Chip Debugger (OCD) --
@@ -98,7 +149,7 @@ begin
     -- Internal Instruction memory --
     MEM_INT_IMEM_EN              => true,        -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            => 32*1024,     -- size of processor-internal instruction memory in bytes
-    MEM_INT_IMEM_ROM             => true,       -- implement processor-internal instruction memory as ROM
+    MEM_INT_IMEM_ROM             => false,       -- implement processor-internal instruction memory as ROM
     -- Internal Data memory --
     MEM_INT_DMEM_EN              => true,        -- implement processor-internal data memory
     MEM_INT_DMEM_SIZE            => 8*1024,      -- size of processor-internal data memory in bytes
@@ -108,7 +159,7 @@ begin
     ICACHE_BLOCK_SIZE            => 64,          -- i-cache: block size in bytes (min 4), has to be a power of 2
     ICACHE_ASSOCIATIVITY         => 1,           -- i-cache: associativity / number of sets (1=direct_mapped), has to be a power of 2
     -- External memory interface --
-    MEM_EXT_EN                   => false,       -- implement external memory bus interface?
+    MEM_EXT_EN                   => true,       -- implement external memory bus interface?
     MEM_EXT_TIMEOUT              => 0,           -- cycles after a pending bus access auto-terminates (0 = disabled)
     -- Processor peripherals --
     IO_GPIO_EN                   => true,        -- implement general purpose input/output port unit (GPIO)?
@@ -138,17 +189,17 @@ begin
     jtag_tdo_o  => open,            -- serial data output
     jtag_tms_i  => '0',             -- mode select
     -- Wishbone bus interface (available if MEM_EXT_EN = true) --
-    wb_tag_o    => open,            -- tag
-    wb_adr_o    => open,            -- address
-    wb_dat_i    => (others => '0'), -- read data
-    wb_dat_o    => open,            -- write data
-    wb_we_o     => open,            -- read/write
-    wb_sel_o    => open,            -- byte enable
-    wb_stb_o    => open,            -- strobe
-    wb_cyc_o    => open,            -- valid cycle
-    wb_lock_o   => open,            -- exclusive access request
-    wb_ack_i    => '0',             -- transfer acknowledge
-    wb_err_i    => '0',             -- transfer error
+    wb_tag_o    => wb_tag_o,        -- tag
+    wb_adr_o    => wb_adr_o,        -- address
+    wb_dat_i    => wb_dat_i,        -- read data
+    wb_dat_o    => wb_dat_o,        -- write data
+    wb_we_o     => wb_we_o,         -- read/write
+    wb_sel_o    => wb_sel_o,        -- byte enable
+    wb_stb_o    => wb_stb_o,        -- strobe
+    wb_cyc_o    => wb_cyc_o,        -- valid cycle
+    wb_lock_o   => wb_lock_o,       -- exclusive access request
+    wb_ack_i    => wb_ack_i,        -- transfer acknowledge
+    wb_err_i    => wb_err_i,        -- transfer error
     -- Advanced memory control signals (available if MEM_EXT_EN = true) --
     fence_o     => open,            -- indicates an executed FENCE operation
     fencei_o    => open,            -- indicates an executed FENCEI operation
@@ -196,5 +247,28 @@ begin
   -- output --
   gpio_o <= gpio_out(7 downto 0);
 
+  reset <= not(rstn_i);
+
+  my_bridge : wishbone2avalonmm 
+  port map (
+    clk => clk_i,
+    reset => reset,
+    wb_tag_i => wb_tag_o,
+    wb_adr_i => wb_adr_o,
+    wb_dat_o => wb_dat_i,
+    wb_dat_i => wb_dat_o,
+    wb_we_i => wb_we_o,
+    wb_sel_i => wb_sel_o,
+    wb_stb_i => wb_stb_o,
+    wb_cyc_i => wb_cyc_o,
+    wb_lock_i => wb_lock_o,
+    wb_ack_o => wb_ack_i,
+    wb_err_o => wb_err_i,
+    read => read,
+    write => write,
+    waitrequest => waitrequest,
+    address => address,
+    writedata => writedata,
+    readdata => readdata);
 
 end architecture;
