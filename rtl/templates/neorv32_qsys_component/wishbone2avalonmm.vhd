@@ -82,7 +82,7 @@ begin
             wb_stb <= wb_stb_i;
             wb_we <= wb_we_i;
 
-            -- wb_dat_o <= std_ulogic_vector(wb_adr or wb_dat or (x"000000" & "000" & wb_ack & read_smp & write_smp & wb_stb & wb_we));
+            --wb_dat_o <= std_ulogic_vector(wb_adr or wb_dat or (x"000000" & "000" & wb_ack & read_smp & write_smp & wb_stb & wb_we));
 
             wb_ack <= not(waitrequest);
 
@@ -98,6 +98,7 @@ begin
     writedata <= std_logic_vector(wb_dat_i);
 
     wb_dat_o <= std_ulogic_vector(readdata);
+    --wb_dat_o <= x"12345678";
     wb_ack_o <= not(waitrequest);
     wb_err_o <= '0';
 
