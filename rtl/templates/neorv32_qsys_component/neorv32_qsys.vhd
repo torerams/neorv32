@@ -55,6 +55,10 @@ entity neorv32_qsys is
     uart0_txd_o : out std_ulogic; -- UART0 send data
     uart0_rxd_i : in  std_ulogic := '0'; -- UART0 receive data
 
+    -- UART1 --
+    uart1_txd_o : out std_ulogic; -- UART0 send data
+    uart1_rxd_i : in  std_ulogic := '0'; -- UART0 receive data
+    
     -- AvalonMM interface
     read                    : out std_logic;
     write                   : out std_logic;
@@ -165,7 +169,7 @@ begin
     IO_GPIO_EN                   => true,        -- implement general purpose input/output port unit (GPIO)?
     IO_MTIME_EN                  => true,        -- implement machine system timer (MTIME)?
     IO_UART0_EN                  => true,        -- implement primary universal asynchronous receiver/transmitter (UART0)?
-    IO_UART1_EN                  => false,       -- implement secondary universal asynchronous receiver/transmitter (UART1)?
+    IO_UART1_EN                  => true,        -- implement secondary universal asynchronous receiver/transmitter (UART1)?
     IO_SPI_EN                    => false,       -- implement serial peripheral interface (SPI)?
     IO_TWI_EN                    => false,       -- implement two-wire interface (TWI)?
     IO_PWM_NUM_CH                => 0,           -- number of PWM channels to implement (0..60); 0 = disabled
@@ -212,8 +216,8 @@ begin
     uart0_rts_o => open,            -- hw flow control: UART0.RX ready to receive ("RTR"), low-active, optional
     uart0_cts_i => '0',             -- hw flow control: UART0.TX allowed to transmit, low-active, optional
     -- secondary UART1 (available if IO_UART1_EN = true) --
-    uart1_txd_o => open,            -- UART1 send data
-    uart1_rxd_i => '0',             -- UART1 receive data
+    uart1_txd_o => uart1_txd_o,     -- UART1 send data
+    uart1_rxd_i => uart1_rxd_i,     -- UART1 receive data
     uart1_rts_o => open,            -- hw flow control: UART1.RX ready to receive ("RTR"), low-active, optional
     uart1_cts_i => '0',             -- hw flow control: UART1.TX allowed to transmit, low-active, optional
     -- SPI (available if IO_SPI_EN = true) --

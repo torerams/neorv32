@@ -85,6 +85,8 @@ set_interface_property cpu_io SVD_ADDRESS_GROUP ""
 add_interface_port cpu_io gpio_o gpio_o Output 8
 add_interface_port cpu_io uart0_txd_o uart0_txd_o Output 1
 add_interface_port cpu_io uart0_rxd_i uart0_rxd_i Input 1
+add_interface_port cpu_io uart1_txd_o uart1_txd_o Output 1
+add_interface_port cpu_io uart1_rxd_i uart1_rxd_i Input 1
 
 # 
 # connection point master
