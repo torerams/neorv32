@@ -65,7 +65,7 @@
  **************************************************************************/
 /**@{*/
 /** UART BAUD rate */
-#define BAUD_RATE              (115200)
+#define BAUD_RATE              (19200)
 /** Enable auto-boot sequence if != 0 */
 #define AUTOBOOT_EN            (1)
 /** Time until the auto-boot sequence starts (in seconds) */
