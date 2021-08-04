@@ -45,27 +45,39 @@ library neorv32;
 use neorv32.neorv32_package.all;
 
 entity neorv32_qsys is
+  generic (
+    GUI_CLOCK_FREQUENCY     : integer := 100000000;
+    GUI_IMEM_SIZE           : integer := 16;
+    GUI_IMEM_AS_ROM         : boolean := true;
+    GUI_DMEM_SIZE           : integer := 8;
+    GUI_ENABLE_BOOTLOADER   : boolean := false;
+    GUI_ENABLE_AVALONMM     : boolean := true;
+    GUI_ENABLE_UART0        : boolean := true;
+    GUI_ENABLE_UART1        : boolean := false;
+    GUI_ENABLE_GPIO         : boolean := false
+  );
   port (
     -- Global control --
-    clk_i       : in  std_ulogic := '0'; -- global clock, rising edge
-    rstn_i      : in  std_ulogic := '0'; -- global reset, low-active, async
+    clk_i       : in  std_logic := '0'; -- global clock, rising edge
+    rstn_i      : in  std_logic := '0'; -- global reset, low-active, async
     -- GPIO --
-    gpio_o      : out std_ulogic_vector(7 downto 0); -- parallel output
+    gpio_o      : out std_logic_vector(31 downto 0); -- parallel output
+    gpio_i      : in std_logic_vector(31 downto 0) := (others => '0'); -- parallel output
     -- UART0 --
-    uart0_txd_o : out std_ulogic; -- UART0 send data
-    uart0_rxd_i : in  std_ulogic := '0'; -- UART0 receive data
+    uart0_txd_o : out std_logic; -- UART0 send data
+    uart0_rxd_i : in  std_logic := '0'; -- UART0 receive data
 
     -- UART1 --
-    uart1_txd_o : out std_ulogic; -- UART0 send data
-    uart1_rxd_i : in  std_ulogic := '0'; -- UART0 receive data
+    uart1_txd_o : out std_logic; -- UART0 send data
+    uart1_rxd_i : in  std_logic := '0'; -- UART0 receive data
     
     -- AvalonMM interface
     read                    : out std_logic;
     write                   : out std_logic;
-    waitrequest             : in std_logic;
+    waitrequest             : in std_logic := '0';
     address                 : out std_logic_vector(31 downto 0);
     writedata               : out std_logic_vector(31 downto 0);
-    readdata                : in std_logic_vector(31 downto 0)
+    readdata                : in std_logic_vector(31 downto 0) := (others => '0')
 
   );
 end entity;
@@ -99,8 +111,8 @@ architecture neorv32_qsys_rtl of neorv32_qsys is
 
 end component wishbone2avalonmm;  
 
--- gpio output --
-signal  gpio_out : std_ulogic_vector(31 downto 0);
+signal  gpio_i_ulogic : std_ulogic_vector(31 downto 0);
+signal  gpio_o_ulogic : std_ulogic_vector(31 downto 0);
 
 -- Wishbone bus interface (available if MEM_EXT_EN = true) --
 signal  wb_tag_o    : std_ulogic_vector(02 downto 0); -- request tag
@@ -124,8 +136,8 @@ begin
   neorv32_top_inst: neorv32_top
   generic map (
     -- General --
-    CLOCK_FREQUENCY              => 100000000,   -- clock frequency of clk_i in Hz
-    BOOTLOADER_EN                => false,        -- implement processor-internal bootloader?
+    CLOCK_FREQUENCY              => GUI_CLOCK_FREQUENCY,   -- clock frequency of clk_i in Hz
+    BOOTLOADER_EN                => GUI_ENABLE_BOOTLOADER,        -- implement processor-internal bootloader?
     USER_CODE                    => x"00000000", -- custom user code
     HW_THREAD_ID                 => 0,           -- hardware thread id (hartid)
     -- On-Chip Debugger (OCD) --
@@ -152,24 +164,24 @@ begin
     HPM_CNT_WIDTH                => 40,          -- total size of HPM counters (0..64)
     -- Internal Instruction memory --
     MEM_INT_IMEM_EN              => true,        -- implement processor-internal instruction memory
-    MEM_INT_IMEM_SIZE            => 32*1024,     -- size of processor-internal instruction memory in bytes
-    MEM_INT_IMEM_ROM             => true,       -- implement processor-internal instruction memory as ROM
+    MEM_INT_IMEM_SIZE            => GUI_IMEM_SIZE*1024,     -- size of processor-internal instruction memory in bytes
+    MEM_INT_IMEM_ROM             => GUI_IMEM_AS_ROM,       -- implement processor-internal instruction memory as ROM
     -- Internal Data memory --
     MEM_INT_DMEM_EN              => true,        -- implement processor-internal data memory
-    MEM_INT_DMEM_SIZE            => 8*1024,      -- size of processor-internal data memory in bytes
+    MEM_INT_DMEM_SIZE            => GUI_DMEM_SIZE*1024,      -- size of processor-internal data memory in bytes
     -- Internal Cache memory --
     ICACHE_EN                    => false,       -- implement instruction cache
     ICACHE_NUM_BLOCKS            => 4,           -- i-cache: number of blocks (min 1), has to be a power of 2
     ICACHE_BLOCK_SIZE            => 64,          -- i-cache: block size in bytes (min 4), has to be a power of 2
     ICACHE_ASSOCIATIVITY         => 1,           -- i-cache: associativity / number of sets (1=direct_mapped), has to be a power of 2
     -- External memory interface --
-    MEM_EXT_EN                   => true,       -- implement external memory bus interface?
+    MEM_EXT_EN                   => GUI_ENABLE_AVALONMM,       -- implement external memory bus interface?
     MEM_EXT_TIMEOUT              => 0,           -- cycles after a pending bus access auto-terminates (0 = disabled)
     -- Processor peripherals --
-    IO_GPIO_EN                   => true,        -- implement general purpose input/output port unit (GPIO)?
+    IO_GPIO_EN                   => GUI_ENABLE_GPIO,        -- implement general purpose input/output port unit (GPIO)?
     IO_MTIME_EN                  => true,        -- implement machine system timer (MTIME)?
-    IO_UART0_EN                  => true,        -- implement primary universal asynchronous receiver/transmitter (UART0)?
-    IO_UART1_EN                  => true,        -- implement secondary universal asynchronous receiver/transmitter (UART1)?
+    IO_UART0_EN                  => GUI_ENABLE_UART0,        -- implement primary universal asynchronous receiver/transmitter (UART0)?
+    IO_UART1_EN                  => GUI_ENABLE_UART1,        -- implement secondary universal asynchronous receiver/transmitter (UART1)?
     IO_SPI_EN                    => false,       -- implement serial peripheral interface (SPI)?
     IO_TWI_EN                    => false,       -- implement two-wire interface (TWI)?
     IO_PWM_NUM_CH                => 0,           -- number of PWM channels to implement (0..60); 0 = disabled
@@ -208,8 +220,8 @@ begin
     fence_o     => open,            -- indicates an executed FENCE operation
     fencei_o    => open,            -- indicates an executed FENCEI operation
     -- GPIO (available if IO_GPIO_EN = true) --
-    gpio_o      => gpio_out,        -- parallel output
-    gpio_i      => (others => '0'), -- parallel input
+    gpio_o      => gpio_o_ulogic,   -- parallel output
+    gpio_i      => gpio_i_ulogic,   -- parallel input
     -- primary UART0 (available if IO_UART0_EN = true) --
     uart0_txd_o => uart0_txd_o,     -- UART0 send data
     uart0_rxd_i => uart0_rxd_i,     -- UART0 receive data
@@ -248,8 +260,9 @@ begin
     mext_irq_i  => '0'              -- machine external interrupt
   );
 
-  -- output --
-  gpio_o <= gpio_out(7 downto 0);
+    -- Convert between std_logic / std_ulogic
+  gpio_o <= std_logic_vector(gpio_o_ulogic);
+  gpio_i_ulogic <= std_ulogic_vector(gpio_i);
 
   reset <= not(rstn_i);
 
