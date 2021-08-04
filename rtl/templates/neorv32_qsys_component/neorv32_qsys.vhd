@@ -48,13 +48,13 @@ entity neorv32_qsys is
   generic (
     GUI_CLOCK_FREQUENCY     : integer := 100000000;
     GUI_IMEM_SIZE           : integer := 16;
-    GUI_IMEM_AS_ROM         : boolean := true;
+    GUI_IMEM_AS_ROM         : integer := 1;
     GUI_DMEM_SIZE           : integer := 8;
-    GUI_ENABLE_BOOTLOADER   : boolean := false;
-    GUI_ENABLE_AVALONMM     : boolean := true;
-    GUI_ENABLE_UART0        : boolean := true;
-    GUI_ENABLE_UART1        : boolean := false;
-    GUI_ENABLE_GPIO         : boolean := false
+    GUI_ENABLE_BOOTLOADER   : integer := 0;
+    GUI_ENABLE_AVALONMM     : integer := 1;
+    GUI_ENABLE_UART0        : integer := 1;
+    GUI_ENABLE_UART1        : integer := 0;
+    GUI_ENABLE_GPIO         : integer := 0
   );
   port (
     -- Global control --
@@ -129,6 +129,15 @@ signal  wb_err_i    : std_ulogic; -- transfer error
 
 signal  reset       : std_logic;
 
+function integer2bool(integer_value : integer := 0) return boolean is
+begin
+  if integer_value = 0 then
+    return false;
+  else
+    return true;
+  end if;
+end function;
+
 begin
 
   -- The Core Of The Problem ----------------------------------------------------------------
@@ -137,7 +146,7 @@ begin
   generic map (
     -- General --
     CLOCK_FREQUENCY              => GUI_CLOCK_FREQUENCY,   -- clock frequency of clk_i in Hz
-    BOOTLOADER_EN                => GUI_ENABLE_BOOTLOADER,        -- implement processor-internal bootloader?
+    BOOTLOADER_EN                => integer2bool(GUI_ENABLE_BOOTLOADER),        -- implement processor-internal bootloader?
     USER_CODE                    => x"00000000", -- custom user code
     HW_THREAD_ID                 => 0,           -- hardware thread id (hartid)
     -- On-Chip Debugger (OCD) --
@@ -165,7 +174,7 @@ begin
     -- Internal Instruction memory --
     MEM_INT_IMEM_EN              => true,        -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            => GUI_IMEM_SIZE*1024,     -- size of processor-internal instruction memory in bytes
-    MEM_INT_IMEM_ROM             => GUI_IMEM_AS_ROM,       -- implement processor-internal instruction memory as ROM
+    MEM_INT_IMEM_ROM             => integer2bool(GUI_IMEM_AS_ROM),       -- implement processor-internal instruction memory as ROM
     -- Internal Data memory --
     MEM_INT_DMEM_EN              => true,        -- implement processor-internal data memory
     MEM_INT_DMEM_SIZE            => GUI_DMEM_SIZE*1024,      -- size of processor-internal data memory in bytes
@@ -175,13 +184,13 @@ begin
     ICACHE_BLOCK_SIZE            => 64,          -- i-cache: block size in bytes (min 4), has to be a power of 2
     ICACHE_ASSOCIATIVITY         => 1,           -- i-cache: associativity / number of sets (1=direct_mapped), has to be a power of 2
     -- External memory interface --
-    MEM_EXT_EN                   => GUI_ENABLE_AVALONMM,       -- implement external memory bus interface?
+    MEM_EXT_EN                   => integer2bool(GUI_ENABLE_AVALONMM),       -- implement external memory bus interface?
     MEM_EXT_TIMEOUT              => 0,           -- cycles after a pending bus access auto-terminates (0 = disabled)
     -- Processor peripherals --
-    IO_GPIO_EN                   => GUI_ENABLE_GPIO,        -- implement general purpose input/output port unit (GPIO)?
+    IO_GPIO_EN                   => integer2bool(GUI_ENABLE_GPIO),        -- implement general purpose input/output port unit (GPIO)?
     IO_MTIME_EN                  => true,        -- implement machine system timer (MTIME)?
-    IO_UART0_EN                  => GUI_ENABLE_UART0,        -- implement primary universal asynchronous receiver/transmitter (UART0)?
-    IO_UART1_EN                  => GUI_ENABLE_UART1,        -- implement secondary universal asynchronous receiver/transmitter (UART1)?
+    IO_UART0_EN                  => integer2bool(GUI_ENABLE_UART0),        -- implement primary universal asynchronous receiver/transmitter (UART0)?
+    IO_UART1_EN                  => integer2bool(GUI_ENABLE_UART1),        -- implement secondary universal asynchronous receiver/transmitter (UART1)?
     IO_SPI_EN                    => false,       -- implement serial peripheral interface (SPI)?
     IO_TWI_EN                    => false,       -- implement two-wire interface (TWI)?
     IO_PWM_NUM_CH                => 0,           -- number of PWM channels to implement (0..60); 0 = disabled
