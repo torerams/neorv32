@@ -9,7 +9,7 @@
    categories="System" />
  <parameter name="bonusData"><![CDATA[bonusData 
 {
-   element clk_0
+   element my_clk
    {
       datum _sortIndex
       {
@@ -17,7 +17,7 @@
          type = "int";
       }
    }
-   element neorv32_qsys_0
+   element my_neorv32_qsys
    {
       datum _sortIndex
       {
@@ -46,30 +46,46 @@
  <parameter name="timeStamp" value="0" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
- <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
+ <interface name="clk" internal="my_clk.clk_in" type="clock" dir="end" />
+ <interface name="cpu_io" internal="my_neorv32_qsys.cpu_io" />
  <interface
-   name="cpu_io"
-   internal="neorv32_qsys_0.cpu_io"
+   name="perf_gpio"
+   internal="my_neorv32_qsys.perf_gpio"
    type="conduit"
    dir="end" />
- <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
- <module name="clk_0" kind="clock_source" version="18.1" enabled="1">
+ <interface
+   name="perf_uart0"
+   internal="my_neorv32_qsys.perf_uart0"
+   type="conduit"
+   dir="end" />
+ <interface name="reset" internal="my_clk.clk_in_reset" type="reset" dir="end" />
+ <module name="my_clk" kind="clock_source" version="18.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
   <parameter name="inputClockFrequency" value="0" />
   <parameter name="resetSynchronousEdges" value="DEASSERT" />
  </module>
- <module name="neorv32_qsys_0" kind="neorv32_qsys" version="1.0" enabled="1" />
+ <module name="my_neorv32_qsys" kind="neorv32_qsys" version="1.0" enabled="1">
+  <parameter name="GUI_CLOCK_FREQUENCY" value="50000000" />
+  <parameter name="GUI_DMEM_SIZE" value="8" />
+  <parameter name="GUI_ENABLE_AVALONMM" value="false" />
+  <parameter name="GUI_ENABLE_BOOTLOADER" value="false" />
+  <parameter name="GUI_ENABLE_GPIO" value="true" />
+  <parameter name="GUI_ENABLE_UART0" value="true" />
+  <parameter name="GUI_ENABLE_UART1" value="false" />
+  <parameter name="GUI_IMEM_AS_ROM" value="true" />
+  <parameter name="GUI_IMEM_SIZE" value="16" />
+ </module>
  <connection
    kind="clock"
    version="18.1"
-   start="clk_0.clk"
-   end="neorv32_qsys_0.clk" />
+   start="my_clk.clk"
+   end="my_neorv32_qsys.clk" />
  <connection
    kind="reset"
    version="18.1"
-   start="clk_0.clk_reset"
-   end="neorv32_qsys_0.reset" />
+   start="my_clk.clk_reset"
+   end="my_neorv32_qsys.reset" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
  <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />

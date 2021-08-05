@@ -18,21 +18,27 @@ architecture rtl of neorv32_ProcessorTop_Test is
 
 component neorv32_test_qsys is
 port (
-    clk_clk               : in std_logic;
-    cpu_io_gpio_o         : out std_logic_vector(7 downto 0);
-    cpu_io_uart0_txd_o    : out std_logic;
-    cpu_io_uart0_rxd_i    : in std_logic;
-    reset_reset_n         : in std_logic);
+    clk_clk                 : in std_logic;
+    perf_uart0_uart0_txd_o  : out std_logic;
+    perf_uart0_uart0_rxd_i  : in std_logic;
+    perf_gpio_gpio_o        : out std_logic_vector(31 downto 0);
+    perf_gpio_gpio_i        : in std_logic_vector(31 downto 0);
+    reset_reset_n           : in std_logic);
 end component;
 
+signal  perf_gpio_gpio_o    : std_logic_vector(31 downto 0);
+
 begin
+
+    gpio_o <= perf_gpio_gpio_o(7 downto 0);
 
     my_riscv_core : neorv32_test_qsys
     port map (
         clk_clk => clk_i,
-        cpu_io_gpio_o => gpio_o,
-        cpu_io_uart0_txd_o => uart0_txd_o,
-        cpu_io_uart0_rxd_i => uart0_rxd_i,
+        perf_gpio_gpio_o => perf_gpio_gpio_o,
+        perf_gpio_gpio_i => (others => '0'),
+        perf_uart0_uart0_txd_o => uart0_txd_o,
+        perf_uart0_uart0_rxd_i => uart0_rxd_i,
         reset_reset_n => rstn_i);
 
 end rtl;
