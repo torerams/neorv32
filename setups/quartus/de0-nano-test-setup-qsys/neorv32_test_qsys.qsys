@@ -170,16 +170,29 @@
   <parameter name="resetSynchronousEdges" value="DEASSERT" />
  </module>
  <module name="my_neorv32_qsys" kind="neorv32_qsys" version="1.0" enabled="1">
-  <parameter name="GUI_CLOCK_FREQUENCY" value="50000000" />
+  <parameter name="CLOCK_RATE_CLK" value="50000000" />
+  <parameter name="GUI_CPU_IPB_ENTRIES" value="2" />
   <parameter name="GUI_DMEM_SIZE" value="8" />
-  <parameter name="GUI_EMABLE_INTERNAL_DMEM" value="false" />
-  <parameter name="GUI_EMABLE_INTERNAL_IMEM" value="true" />
-  <parameter name="GUI_ENABLE_AVALONMM" value="true" />
-  <parameter name="GUI_ENABLE_BOOTLOADER" value="false" />
-  <parameter name="GUI_ENABLE_GPIO" value="true" />
-  <parameter name="GUI_ENABLE_UART0" value="true" />
-  <parameter name="GUI_ENABLE_UART1" value="false" />
   <parameter name="GUI_IMEM_SIZE" value="16" />
+  <parameter name="TMP_EXTENSION_RISCV_A" value="false" />
+  <parameter name="TMP_EXTENSION_RISCV_C" value="true" />
+  <parameter name="TMP_EXTENSION_RISCV_E" value="false" />
+  <parameter name="TMP_EXTENSION_RISCV_M" value="true" />
+  <parameter name="TMP_EXTENSION_RISCV_U" value="false" />
+  <parameter name="TMP_EXTENSION_RISCV_ZBB" value="false" />
+  <parameter name="TMP_EXTENSION_RISCV_ZFINX" value="false" />
+  <parameter name="TMP_EXTENSION_RISCV_ZICSR" value="true" />
+  <parameter name="TMP_EXTENSION_RISCV_ZIFENCEI" value="false" />
+  <parameter name="TMP_EXTENSION_RISCV_ZMMUL" value="false" />
+  <parameter name="TMP_GUI_CLOCK_FREQUENCY" value="100000000" />
+  <parameter name="TMP_GUI_ENABLE_AVALONMM" value="true" />
+  <parameter name="TMP_GUI_ENABLE_BOOTLOADER" value="false" />
+  <parameter name="TMP_GUI_ENABLE_GPIO" value="true" />
+  <parameter name="TMP_GUI_ENABLE_INTERNAL_DMEM" value="true" />
+  <parameter name="TMP_GUI_ENABLE_INTERNAL_IMEM" value="true" />
+  <parameter name="TMP_GUI_ENABLE_SPI" value="false" />
+  <parameter name="TMP_GUI_ENABLE_UART0" value="true" />
+  <parameter name="TMP_GUI_ENABLE_UART1" value="false" />
  </module>
  <connection
    kind="avalon"
