@@ -44,14 +44,26 @@ use neorv32.neorv32_package.all;
 entity neorv32_qsys is
   generic (
     GUI_CLOCK_FREQUENCY       : integer := 100000000;
-    GUI_EMABLE_INTERNAL_IMEM  : integer := 1;
+    EXTENSION_RISCV_A        : integer := 0;
+    EXTENSION_RISCV_C        : integer := 1;
+    EXTENSION_RISCV_E        : integer := 0;
+    EXTENSION_RISCV_M        : integer := 1;
+    EXTENSION_RISCV_U        : integer := 0;
+    EXTENSION_RISCV_ZBB      : integer := 0;
+    EXTENSION_RISCV_ZFINX    : integer := 0;
+    EXTENSION_RISCV_ZICSR    : integer := 1;
+    EXTENSION_RISCV_ZIFENCEI : integer := 0;
+    EXTENSION_RISCV_ZMMUL    : integer := 0;
+    GUI_CPU_IPB_ENTRIES      : integer := 2;
+    GUI_ENABLE_INTERNAL_IMEM  : integer := 1;
     GUI_IMEM_SIZE             : integer := 16;
-    GUI_EMABLE_INTERNAL_DMEM  : integer := 1;
+    GUI_ENABLE_INTERNAL_DMEM  : integer := 1;
     GUI_DMEM_SIZE             : integer := 8;
     GUI_ENABLE_BOOTLOADER     : integer := 0;
     GUI_ENABLE_AVALONMM       : integer := 1;
     GUI_ENABLE_UART0          : integer := 1;
     GUI_ENABLE_UART1          : integer := 0;
+    GUI_ENABLE_SPI            : integer := 0;
     GUI_ENABLE_GPIO           : integer := 0
   );
   port (
@@ -68,6 +80,12 @@ entity neorv32_qsys is
     -- UART1 --
     uart1_txd_o : out std_logic; -- UART0 send data
     uart1_rxd_i : in  std_logic := '0'; -- UART0 receive data
+
+    spi_sck_o   : out std_logic; -- SPI serial clock
+    spi_sdo_o   : out std_logic; -- controller data out, peripheral data in
+    spi_sdi_i   : in std_logic := '0';  -- controller data in, peripheral data out
+    spi_csn_o   : out std_logic_vector(7 downto 0); -- SPI CS
+
     
     -- AvalonMM interface
     read                    : out std_logic;
@@ -101,6 +119,8 @@ signal  wb_err_i    : std_ulogic; -- transfer error
 
 signal  reset       : std_logic;
 
+signal  spi_csn_o_ulogic  : std_ulogic_vector(7 downto 0);
+
 function integer2bool(integer_value : integer := 0) return boolean is
 begin
   if integer_value = 0 then
@@ -123,20 +143,21 @@ begin
     -- On-Chip Debugger (OCD) --
     ON_CHIP_DEBUGGER_EN          => false,       -- implement on-chip debugger
     -- RISC-V CPU Extensions --
-    CPU_EXTENSION_RISCV_A        => false,       -- implement atomic extension?
-    CPU_EXTENSION_RISCV_C        => true,        -- implement compressed extension?
-    CPU_EXTENSION_RISCV_E        => false,       -- implement embedded RF extension?
-    CPU_EXTENSION_RISCV_M        => true,        -- implement muld/div extension?
-    CPU_EXTENSION_RISCV_U        => true,        -- implement user mode extension?
-    CPU_EXTENSION_RISCV_Zfinx    => false,       -- implement 32-bit floating-point extension (using INT reg!)
-    CPU_EXTENSION_RISCV_Zicsr    => true,        -- implement CSR system?
-    CPU_EXTENSION_RISCV_Zifencei => false,       -- implement instruction stream sync.?
-    CPU_EXTENSION_RISCV_Zmmul    => false,  -- implement multiply-only M sub-extension?
+    CPU_EXTENSION_RISCV_A        => integer2bool(EXTENSION_RISCV_A),       -- implement atomic extension?
+    CPU_EXTENSION_RISCV_C        => integer2bool(EXTENSION_RISCV_C),        -- implement compressed extension?
+    CPU_EXTENSION_RISCV_E        => integer2bool(EXTENSION_RISCV_E),       -- implement embedded RF extension?
+    CPU_EXTENSION_RISCV_M        => integer2bool(EXTENSION_RISCV_M),        -- implement muld/div extension?
+    CPU_EXTENSION_RISCV_U        => integer2bool(EXTENSION_RISCV_U),        -- implement user mode extension?
+    CPU_EXTENSION_RISCV_Zbb      => integer2bool(EXTENSION_RISCV_ZBB),       -- implement 32-bit floating-point extension (using INT reg!)
+    CPU_EXTENSION_RISCV_Zfinx    => integer2bool(EXTENSION_RISCV_ZFINX),       -- implement 32-bit floating-point extension (using INT reg!)
+    CPU_EXTENSION_RISCV_Zicsr    => integer2bool(EXTENSION_RISCV_ZICSR),        -- implement CSR system?
+    CPU_EXTENSION_RISCV_Zifencei => integer2bool(EXTENSION_RISCV_ZIFENCEI),       -- implement instruction stream sync.?
+    CPU_EXTENSION_RISCV_Zmmul    => integer2bool(EXTENSION_RISCV_ZMMUL),  -- implement multiply-only M sub-extension?
     -- Extension Options --
     FAST_MUL_EN                  => false,       -- use DSPs for M extension's multiplier
     FAST_SHIFT_EN                => false,       -- use barrel shifter for shift operations
     CPU_CNT_WIDTH                => 64,          -- total width of CPU cycle and instret counters (0..64)
-    CPU_IPB_ENTRIES              => 2,           -- entries is instruction prefetch buffer, has to be a power of 2
+    CPU_IPB_ENTRIES              => GUI_CPU_IPB_ENTRIES,           -- entries is instruction prefetch buffer, has to be a power of 2
     -- Physical Memory Protection (PMP) --
     PMP_NUM_REGIONS              => 0,           -- number of regions (0..64)
     PMP_MIN_GRANULARITY          => 64*1024,     -- minimal region granularity in bytes, has to be a power of 2, min 8 bytes
@@ -144,10 +165,10 @@ begin
     HPM_NUM_CNTS                 => 4,           -- number of implemented HPM counters (0..29)
     HPM_CNT_WIDTH                => 40,          -- total size of HPM counters (0..64)
     -- Internal Instruction memory --
-    MEM_INT_IMEM_EN              => integer2bool(GUI_EMABLE_INTERNAL_IMEM),        -- implement processor-internal instruction memory
+    MEM_INT_IMEM_EN              => integer2bool(GUI_ENABLE_INTERNAL_IMEM),        -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            => GUI_IMEM_SIZE*1024,     -- size of processor-internal instruction memory in bytes
     -- Internal Data memory --
-    MEM_INT_DMEM_EN              => integer2bool(GUI_EMABLE_INTERNAL_DMEM),        -- implement processor-internal data memory
+    MEM_INT_DMEM_EN              => integer2bool(GUI_ENABLE_INTERNAL_DMEM),        -- implement processor-internal data memory
     MEM_INT_DMEM_SIZE            => GUI_DMEM_SIZE*1024,      -- size of processor-internal data memory in bytes
     -- Internal Cache memory --
     ICACHE_EN                    => false,       -- implement instruction cache
@@ -174,7 +195,7 @@ begin
     IO_MTIME_EN                  => true,        -- implement machine system timer (MTIME)?
     IO_UART0_EN                  => integer2bool(GUI_ENABLE_UART0),        -- implement primary universal asynchronous receiver/transmitter (UART0)?
     IO_UART1_EN                  => integer2bool(GUI_ENABLE_UART1),        -- implement secondary universal asynchronous receiver/transmitter (UART1)?
-    IO_SPI_EN                    => false,       -- implement serial peripheral interface (SPI)?
+    IO_SPI_EN                    => integer2bool(GUI_ENABLE_SPI),       -- implement serial peripheral interface (SPI)?
     IO_TWI_EN                    => false,       -- implement two-wire interface (TWI)?
     IO_PWM_NUM_CH                => 0,           -- number of PWM channels to implement (0..60); 0 = disabled
     IO_WDT_EN                    => true,        -- implement watch dog timer (WDT)?
@@ -234,10 +255,10 @@ begin
     uart1_rts_o => open,            -- hw flow control: UART1.RX ready to receive ("RTR"), low-active, optional
     uart1_cts_i => '0',             -- hw flow control: UART1.TX allowed to transmit, low-active, optional
     -- SPI (available if IO_SPI_EN = true) --
-    spi_sck_o   => open,            -- SPI serial clock
-    spi_sdo_o   => open,            -- controller data out, peripheral data in
-    spi_sdi_i   => '0',             -- controller data in, peripheral data out
-    spi_csn_o   => open,            -- SPI CS
+    spi_sck_o   => spi_sck_o,            -- SPI serial clock
+    spi_sdo_o   => spi_sdo_o,            -- controller data out, peripheral data in
+    spi_sdi_i   => spi_sdi_i,             -- controller data in, peripheral data out
+    spi_csn_o   => spi_csn_o_ulogic,            -- SPI CS
     -- TWI (available if IO_TWI_EN = true) --
     twi_sda_io  => open,            -- twi serial data line
     twi_scl_io  => open,            -- twi serial clock line
@@ -262,6 +283,7 @@ begin
     -- Convert between std_logic / std_ulogic
   gpio_o <= std_logic_vector(gpio_o_ulogic);
   gpio_i_ulogic <= std_ulogic_vector(gpio_i);
+  spi_csn_o <= std_logic_vector(spi_csn_o_ulogic);
 
   reset <= not(rstn_i);
 
