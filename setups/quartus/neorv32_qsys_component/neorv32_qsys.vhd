@@ -44,9 +44,9 @@ use neorv32.neorv32_package.all;
 entity neorv32_qsys is
   generic (
     GUI_CLOCK_FREQUENCY       : integer := 100000000;
-    GUI_EMABLE_INTERNAL_IMEM  : integer := 1;
+    GUI_ENABLE_INTERNAL_IMEM  : integer := 1;
     GUI_IMEM_SIZE             : integer := 16;
-    GUI_EMABLE_INTERNAL_DMEM  : integer := 1;
+    GUI_ENABLE_INTERNAL_DMEM  : integer := 1;
     GUI_DMEM_SIZE             : integer := 8;
     GUI_ENABLE_BOOTLOADER     : integer := 0;
     GUI_ENABLE_AVALONMM       : integer := 1;
@@ -144,10 +144,10 @@ begin
     HPM_NUM_CNTS                 => 4,           -- number of implemented HPM counters (0..29)
     HPM_CNT_WIDTH                => 40,          -- total size of HPM counters (0..64)
     -- Internal Instruction memory --
-    MEM_INT_IMEM_EN              => integer2bool(GUI_EMABLE_INTERNAL_IMEM),        -- implement processor-internal instruction memory
+    MEM_INT_IMEM_EN              => integer2bool(GUI_ENABLE_INTERNAL_IMEM),        -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            => GUI_IMEM_SIZE*1024,     -- size of processor-internal instruction memory in bytes
     -- Internal Data memory --
-    MEM_INT_DMEM_EN              => integer2bool(GUI_EMABLE_INTERNAL_DMEM),        -- implement processor-internal data memory
+    MEM_INT_DMEM_EN              => integer2bool(GUI_ENABLE_INTERNAL_DMEM),        -- implement processor-internal data memory
     MEM_INT_DMEM_SIZE            => GUI_DMEM_SIZE*1024,      -- size of processor-internal data memory in bytes
     -- Internal Cache memory --
     ICACHE_EN                    => false,       -- implement instruction cache

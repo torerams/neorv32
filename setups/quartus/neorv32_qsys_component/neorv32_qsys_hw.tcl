@@ -34,29 +34,28 @@ add_fileset_file neorv32_qsys.vhd VHDL PATH neorv32_qsys.vhd TOP_LEVEL_FILE
 # 
 # parameters
 # 
-#add_parameter src_id INTEGER 1 ""
-#set_parameter_property src_id DEFAULT_VALUE 1
-#set_parameter_property src_id DISPLAY_NAME src_id
-#set_parameter_property src_id WIDTH ""
-#set_parameter_property src_id TYPE INTEGER
-#set_parameter_property src_id UNITS None
-#set_parameter_property src_id ALLOWED_RANGES 1:15
-#set_parameter_property src_id DESCRIPTION "Input source ID"
-#set_parameter_property src_id HDL_PARAMETER true
-
-add_parameter GUI_CLOCK_FREQUENCY INTEGER 100000000
-set_parameter_property GUI_CLOCK_FREQUENCY DISPLAY_NAME "CPU Clock Frequency"
-set_parameter_property GUI_CLOCK_FREQUENCY DISPLAY_UNITS "Hz"
-set_parameter_property GUI_CLOCK_FREQUENCY DESCRIPTION "CPU clock frequency"
-set_parameter_property GUI_CLOCK_FREQUENCY ALLOWED_RANGES 1000000:250000000 
-set_parameter_property GUI_CLOCK_FREQUENCY GROUP "Core"
+add_parameter TMP_GUI_CLOCK_FREQUENCY INTEGER 100000000
+set_parameter_property TMP_GUI_CLOCK_FREQUENCY DISPLAY_NAME "CPU Clock Frequency"
+set_parameter_property TMP_GUI_CLOCK_FREQUENCY DISPLAY_UNITS "Hz"
+set_parameter_property TMP_GUI_CLOCK_FREQUENCY DESCRIPTION "CPU clock frequency"
+set_parameter_property TMP_GUI_CLOCK_FREQUENCY ALLOWED_RANGES 1000000:250000000 
+set_parameter_property TMP_GUI_CLOCK_FREQUENCY GROUP "Core"
+set_parameter_property TMP_GUI_CLOCK_FREQUENCY HDL_PARAMETER false
+set_parameter_property TMP_GUI_CLOCK_FREQUENCY VISIBLE false
+add_parameter GUI_CLOCK_FREQUENCY Integer 100000000
 set_parameter_property GUI_CLOCK_FREQUENCY HDL_PARAMETER true
+set_parameter_property GUI_CLOCK_FREQUENCY DERIVED true
+set_parameter_property GUI_CLOCK_FREQUENCY VISIBLE false
 
-add_parameter GUI_EMABLE_INTERNAL_IMEM BOOLEAN true
-set_parameter_property GUI_EMABLE_INTERNAL_IMEM DISPLAY_NAME "Enable Internal IMEM"
-set_parameter_property GUI_EMABLE_INTERNAL_IMEM DESCRIPTION "Use interal IMEM"
-set_parameter_property GUI_EMABLE_INTERNAL_IMEM GROUP "Core"
-set_parameter_property GUI_EMABLE_INTERNAL_IMEM HDL_PARAMETER true
+add_parameter TMP_GUI_ENABLE_INTERNAL_IMEM BOOLEAN true
+set_parameter_property TMP_GUI_ENABLE_INTERNAL_IMEM DISPLAY_NAME "Enable Internal IMEM"
+set_parameter_property TMP_GUI_ENABLE_INTERNAL_IMEM DESCRIPTION "Use interal IMEM"
+set_parameter_property TMP_GUI_ENABLE_INTERNAL_IMEM GROUP "Core"
+set_parameter_property TMP_GUI_ENABLE_INTERNAL_IMEM HDL_PARAMETER false
+add_parameter GUI_ENABLE_INTERNAL_IMEM Integer 1
+set_parameter_property GUI_ENABLE_INTERNAL_IMEM HDL_PARAMETER true
+set_parameter_property GUI_ENABLE_INTERNAL_IMEM DERIVED true
+set_parameter_property GUI_ENABLE_INTERNAL_IMEM VISIBLE false
 
 add_parameter GUI_IMEM_SIZE INTEGER 16
 set_parameter_property GUI_IMEM_SIZE DISPLAY_NAME "Internal IMEM Memory Size"
@@ -66,11 +65,15 @@ set_parameter_property GUI_IMEM_SIZE ALLOWED_RANGES {4 8 16 32 64}
 set_parameter_property GUI_IMEM_SIZE GROUP "Core"
 set_parameter_property GUI_IMEM_SIZE HDL_PARAMETER true
 
-add_parameter GUI_EMABLE_INTERNAL_DMEM BOOLEAN true
-set_parameter_property GUI_EMABLE_INTERNAL_DMEM DISPLAY_NAME "Enable Internal DMEM"
-set_parameter_property GUI_EMABLE_INTERNAL_DMEM DESCRIPTION "Use interal DMEM"
-set_parameter_property GUI_EMABLE_INTERNAL_DMEM GROUP "Core"
-set_parameter_property GUI_EMABLE_INTERNAL_DMEM HDL_PARAMETER true
+add_parameter TMP_GUI_ENABLE_INTERNAL_DMEM BOOLEAN true
+set_parameter_property TMP_GUI_ENABLE_INTERNAL_DMEM DISPLAY_NAME "Enable Internal DMEM"
+set_parameter_property TMP_GUI_ENABLE_INTERNAL_DMEM DESCRIPTION "Use interal DMEM"
+set_parameter_property TMP_GUI_ENABLE_INTERNAL_DMEM GROUP "Core"
+set_parameter_property TMP_GUI_ENABLE_INTERNAL_DMEM HDL_PARAMETER false
+add_parameter GUI_ENABLE_INTERNAL_DMEM Integer 1
+set_parameter_property GUI_ENABLE_INTERNAL_DMEM HDL_PARAMETER true
+set_parameter_property GUI_ENABLE_INTERNAL_DMEM DERIVED true
+set_parameter_property GUI_ENABLE_INTERNAL_DMEM VISIBLE false
 
 add_parameter GUI_DMEM_SIZE INTEGER 8
 set_parameter_property GUI_DMEM_SIZE DISPLAY_NAME "Internal DMEM Memory Size"
@@ -81,38 +84,63 @@ set_parameter_property GUI_DMEM_SIZE GROUP "Core"
 set_parameter_property GUI_DMEM_SIZE HDL_PARAMETER true
 
 
-add_parameter GUI_ENABLE_BOOTLOADER BOOLEAN false
-set_parameter_property GUI_ENABLE_BOOTLOADER DISPLAY_NAME "Enable Bootloader"
-set_parameter_property GUI_ENABLE_BOOTLOADER DESCRIPTION "Add bootloader and start bootloader"
-set_parameter_property GUI_ENABLE_BOOTLOADER GROUP "Bootloader"
+add_parameter TMP_GUI_ENABLE_BOOTLOADER BOOLEAN false
+set_parameter_property TMP_GUI_ENABLE_BOOTLOADER DISPLAY_NAME "Enable Bootloader"
+set_parameter_property TMP_GUI_ENABLE_BOOTLOADER DESCRIPTION "Add bootloader and start bootloader"
+set_parameter_property TMP_GUI_ENABLE_BOOTLOADER GROUP "Bootloader"
+set_parameter_property TMP_GUI_ENABLE_BOOTLOADER HDL_PARAMETER false
+add_parameter GUI_ENABLE_BOOTLOADER Integer 0
 set_parameter_property GUI_ENABLE_BOOTLOADER HDL_PARAMETER true
+set_parameter_property GUI_ENABLE_BOOTLOADER DERIVED true
+set_parameter_property GUI_ENABLE_BOOTLOADER VISIBLE false
 
 
-add_parameter GUI_ENABLE_AVALONMM BOOLEAN true
-set_parameter_property GUI_ENABLE_AVALONMM DISPLAY_NAME "Enable AvalonMM Interface"
-set_parameter_property GUI_ENABLE_AVALONMM DESCRIPTION "Add AvalonMM Interface for external modules"
-set_parameter_property GUI_ENABLE_AVALONMM GROUP "Peripheral"
+add_parameter TMP_GUI_ENABLE_AVALONMM BOOLEAN true
+set_parameter_property TMP_GUI_ENABLE_AVALONMM DISPLAY_NAME "Enable AvalonMM Interface"
+set_parameter_property TMP_GUI_ENABLE_AVALONMM DESCRIPTION "Add AvalonMM Interface for external modules"
+set_parameter_property TMP_GUI_ENABLE_AVALONMM GROUP "Peripheral"
+set_parameter_property TMP_GUI_ENABLE_AVALONMM HDL_PARAMETER false
+add_parameter GUI_ENABLE_AVALONMM Integer 1
 set_parameter_property GUI_ENABLE_AVALONMM HDL_PARAMETER true
+set_parameter_property GUI_ENABLE_AVALONMM DERIVED true
+set_parameter_property GUI_ENABLE_AVALONMM VISIBLE false
 
-add_parameter GUI_ENABLE_UART0 BOOLEAN true
-set_parameter_property GUI_ENABLE_UART0 DISPLAY_NAME "Enable UART0"
-set_parameter_property GUI_ENABLE_UART0 DESCRIPTION "Add UART0 to core"
-set_parameter_property GUI_ENABLE_UART0 GROUP "Peripheral"
+add_parameter TMP_GUI_ENABLE_UART0 BOOLEAN true
+set_parameter_property TMP_GUI_ENABLE_UART0 DISPLAY_NAME "Enable UART0"
+set_parameter_property TMP_GUI_ENABLE_UART0 DESCRIPTION "Add UART0 to core"
+set_parameter_property TMP_GUI_ENABLE_UART0 GROUP "Peripheral"
+set_parameter_property TMP_GUI_ENABLE_UART0 HDL_PARAMETER false
+add_parameter GUI_ENABLE_UART0 Integer 1
 set_parameter_property GUI_ENABLE_UART0 HDL_PARAMETER true
+set_parameter_property GUI_ENABLE_UART0 DERIVED true
+set_parameter_property GUI_ENABLE_UART0 VISIBLE false
 
-add_parameter GUI_ENABLE_UART1 BOOLEAN false
-set_parameter_property GUI_ENABLE_UART1 DISPLAY_NAME "Enable UART1"
-set_parameter_property GUI_ENABLE_UART1 DESCRIPTION "Add UART1 to core"
-set_parameter_property GUI_ENABLE_UART1 GROUP "Peripheral"
+add_parameter TMP_GUI_ENABLE_UART1 BOOLEAN false
+set_parameter_property TMP_GUI_ENABLE_UART1 DISPLAY_NAME "Enable UART1"
+set_parameter_property TMP_GUI_ENABLE_UART1 DESCRIPTION "Add UART1 to core"
+set_parameter_property TMP_GUI_ENABLE_UART1 GROUP "Peripheral"
+set_parameter_property TMP_GUI_ENABLE_UART1 HDL_PARAMETER false
+add_parameter GUI_ENABLE_UART1 Integer 0
 set_parameter_property GUI_ENABLE_UART1 HDL_PARAMETER true
+set_parameter_property GUI_ENABLE_UART1 DERIVED true
+set_parameter_property GUI_ENABLE_UART1 VISIBLE false
 
-add_parameter GUI_ENABLE_GPIO BOOLEAN false
-set_parameter_property GUI_ENABLE_GPIO DISPLAY_NAME "Enable GPIO"
-set_parameter_property GUI_ENABLE_GPIO DESCRIPTION "Add GPIO to core"
-set_parameter_property GUI_ENABLE_GPIO GROUP "Peripheral"
+add_parameter TMP_GUI_ENABLE_GPIO BOOLEAN false
+set_parameter_property TMP_GUI_ENABLE_GPIO DISPLAY_NAME "Enable GPIO"
+set_parameter_property TMP_GUI_ENABLE_GPIO DESCRIPTION "Add GPIO to core"
+set_parameter_property TMP_GUI_ENABLE_GPIO GROUP "Peripheral"
+set_parameter_property TMP_GUI_ENABLE_GPIO HDL_PARAMETER false
+add_parameter GUI_ENABLE_GPIO Integer 0
 set_parameter_property GUI_ENABLE_GPIO HDL_PARAMETER true
+set_parameter_property GUI_ENABLE_GPIO DERIVED true
+set_parameter_property GUI_ENABLE_GPIO VISIBLE false
 
-
+# Read the frequency of the input clock (in Hertz)
+add_parameter CLOCK_RATE_CLK INTEGER 0
+set_parameter_property CLOCK_RATE_CLK DISPLAY_NAME "Component's Clock Frequency"
+set_parameter_property CLOCK_RATE_CLK DISPLAY_UNITS "Hz"
+set_parameter_property CLOCK_RATE_CLK SYSTEM_INFO {CLOCK_RATE clk}
+set_parameter_property CLOCK_RATE_CLK VISIBLE false
 
 # 
 # display items
@@ -227,32 +255,72 @@ add_interface_port master writedata writedata Output 32
 add_interface_port master readdata readdata Input 32
 add_interface_port master waitrequest waitrequest Input 1
 
+proc bool2int {bool_param} {
+
+    if { $bool_param == "true" } {
+        set result 1
+    } else {
+        set result 0
+    }
+    return $result
+}
 # Callback to enable/disable interface signals
 proc elaborate {} {
 
-    if { [get_parameter_value GUI_ENABLE_GPIO] == "false" } {
+    set_parameter_value GUI_ENABLE_INTERNAL_IMEM [bool2int [get_parameter_value TMP_GUI_ENABLE_INTERNAL_IMEM]]
+    set_parameter_value GUI_ENABLE_INTERNAL_DMEM [bool2int [get_parameter_value TMP_GUI_ENABLE_INTERNAL_DMEM]]
+    set_parameter_value GUI_ENABLE_BOOTLOADER [bool2int [get_parameter_value TMP_GUI_ENABLE_BOOTLOADER]]
+    
+
+    if { [get_parameter_value TMP_GUI_ENABLE_GPIO] == "false" } {
         set_interface_property perf_gpio ENABLED false
+        set_parameter_value GUI_ENABLE_GPIO 0
     } else {
         set_interface_property perf_gpio ENABLED true
+        set_parameter_value GUI_ENABLE_GPIO 1
     }
 
-    if { [get_parameter_value GUI_ENABLE_UART0] == "false" } {
+    if { [get_parameter_value TMP_GUI_ENABLE_UART0] == "false" } {
         set_interface_property perf_uart0 ENABLED false
+        set_parameter_value GUI_ENABLE_UART0 0
     } else {
         set_interface_property perf_uart0 ENABLED true
+        set_parameter_value GUI_ENABLE_UART0 1
     }
 
-    if { [get_parameter_value GUI_ENABLE_UART1] == "false" } {
+    if { [get_parameter_value TMP_GUI_ENABLE_UART1] == "false" } {
         set_interface_property perf_uart1 ENABLED false
+        set_parameter_value GUI_ENABLE_UART1 0
     } else {
         set_interface_property perf_uart1 ENABLED true
+        set_parameter_value GUI_ENABLE_UART1 1
     }
 
-    if { [get_parameter_value GUI_ENABLE_AVALONMM] == "false" } {
+    if { [get_parameter_value TMP_GUI_ENABLE_AVALONMM] == "false" } {
         set_interface_property master ENABLED false
+        set_parameter_value GUI_ENABLE_AVALONMM 0
     } else {
         set_interface_property master ENABLED true
+        set_parameter_value GUI_ENABLE_AVALONMM 1
     }
+
+    if { [get_parameter_value CLOCK_RATE_CLK] < 1} {
+        set_parameter_property TMP_GUI_CLOCK_FREQUENCY VISIBLE true
+        set_parameter_value GUI_CLOCK_FREQUENCY [get_parameter_value TMP_GUI_CLOCK_FREQUENCY]
+    } else {
+        set_parameter_property TMP_GUI_CLOCK_FREQUENCY VISIBLE false
+        set_parameter_value GUI_CLOCK_FREQUENCY [get_parameter_value CLOCK_RATE_CLK]
+    }
+
+    #send_message Info "IMEM enable [get_parameter_value GUI_ENABLE_INTERNAL_IMEM]"
+    #send_message Info "DMEM enable [get_parameter_value GUI_ENABLE_INTERNAL_DMEM]"
+    #send_message Info "Bootloader enable [get_parameter_value GUI_ENABLE_BOOTLOADER]"
+    #send_message Info "AvalonMM enable [get_parameter_value GUI_ENABLE_AVALONMM]"
+    #send_message Info "UART0 enable [get_parameter_value GUI_ENABLE_UART0]"
+    #send_message Info "UART1 enable [get_parameter_value GUI_ENABLE_UART1]"
+    #send_message Info "GPIO enable [get_parameter_value GUI_ENABLE_GPIO]"
+    send_message Info "NEORV32 Clock Frequency: [get_parameter_value CLOCK_RATE_CLK] Hz"
+    
 
 }
 
