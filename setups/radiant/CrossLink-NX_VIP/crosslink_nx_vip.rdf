@@ -117,10 +117,10 @@
         <Source name="../../../rtl/core/mem/neorv32_dmem.default.vhd" type="VHDL" type_short="VHDL">
             <Options lib="neorv32"/>
         </Source>
-        <Source name="../../../rtl/core/mem/neorv32_imem.default.vhd" type="VHDL" type_short="VHDL">
+        <Source name="neorv32_imem.lattice_lifcl.vhd" type="VHDL" type_short="VHDL">
             <Options lib="neorv32"/>
         </Source>
-        <Source name="source/neorv32_test_setup_top.vhd" type="VHDL" type_short="VHDL">
+        <Source name="neorv32_test_setup_top.vhd" type="VHDL" type_short="VHDL">
             <Options top_module="neorv32_test_setup_top"/>
         </Source>
         <Source name="source/impl.xcf" type="Programming Project File" type_short="Programming">
