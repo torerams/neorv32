@@ -20,7 +20,7 @@
 				<BScanVal>0</BScanVal>
 			</Bypass>
 			<File>../../impl/crosslink_nx_vip_impl.bit</File>
-			<FileTime>10/26/21 16:35:23</FileTime>
+			<FileTime>11/01/21 17:23:54</FileTime>
 			<MemoryType>Static Random Access Memory (SRAM)</MemoryType>
 			<Operation>Fast Configuration</Operation>
 			<Option>
@@ -28,6 +28,7 @@
 				<IOState>HighZ</IOState>
 				<PreloadLength>362</PreloadLength>
 				<IOVectorData>0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</IOVectorData>
+				<SVFProcessor>SVF Processor</SVFProcessor>
 				<Usercode>0x00000000</Usercode>
 				<AccessMode>Direct Programming</AccessMode>
 			</Option>
