@@ -117,6 +117,9 @@ signal  wb_lock_o   : std_ulogic; -- exclusive access request
 signal  wb_ack_i    : std_ulogic; -- transfer acknowledge
 signal  wb_err_i    : std_ulogic; -- transfer error
 
+signal  twi_sda_io  : std_logic;
+signal  twi_scl_io  : std_logic;
+
 signal  reset       : std_logic;
 
 signal  spi_csn_o_ulogic  : std_ulogic_vector(7 downto 0);
@@ -260,8 +263,8 @@ begin
     spi_sdi_i   => spi_sdi_i,             -- controller data in, peripheral data out
     spi_csn_o   => spi_csn_o_ulogic,            -- SPI CS
     -- TWI (available if IO_TWI_EN = true) --
-    twi_sda_io  => open,            -- twi serial data line
-    twi_scl_io  => open,            -- twi serial clock line
+    twi_sda_io  => twi_sda_io,            -- twi serial data line
+    twi_scl_io  => twi_scl_io,            -- twi serial clock line
     -- PWM (available if IO_PWM_NUM_CH > 0) --
     pwm_o       => open,            -- pwm channels
     -- Custom Functions Subsystem IO --
